@@ -1,0 +1,69 @@
+<app-navbar></app-navbar>
+<div class="row" style="padding: 30px;">   
+    <div class="col-md-6">
+        <app-tabs></app-tabs>
+        <div>   
+            <table class="table table-hover table-bordered">
+                <thead>
+                  <tr>
+                    <th scope="col">Tipo</th>
+                    <th scope="col">Nombre</th>
+                    <th scope="col">Linea</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr class="table-active">
+                    <th scope="row">NOmbre</th>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                  </tr>
+                  <tr>
+                    <th scope="row">Default</th>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                  </tr>
+                  <tr class="table-primary">
+                    <th scope="row">Primary</th>
+                    <td>Column content</td>
+                    <td>Column content</td>
+                  </tr>
+                </tbody>
+              </table>
+        </div>
+    </div>
+    
+    <div class="col-md-6">   
+        <div class="card border-primary mb-3" style="width: 40rem;">
+            <div class="card-header">Consola</div>
+            <div class="card-body">
+               <form>
+                <div class="form-group">
+                    <textarea class="form-control" id="exampleTextarea" rows="3" disabled #consolaPython></textarea>
+                  </div>
+               </form>
+            </div>
+          </div>
+          <div class="card border-primary mb-3" style="width: 40rem;">
+            <div class="card-header">Salidas</div>
+            <div class="card-body">
+                <mat-tab-group>
+                    <mat-tab label="HTML"> 
+                        <form style="padding-top: 15px;">
+                            <div class="form-group">
+                                <textarea class="form-control" id="exampleTextarea" rows="3" disabled #consolaPython></textarea>
+                            </div>
+                        </form>
+                    </mat-tab>
+                    <mat-tab label="JSON">
+                        <form style="padding-top: 15px;">
+                            <div class="form-group">
+                                <textarea class="form-control" id="exampleTextarea" rows="3" disabled #consolaPython></textarea>
+                            </div>
+                        </form>
+                    </mat-tab>
+                </mat-tab-group>
+            </div>
+          </div>
+    </div>
+    
+</div>
