@@ -1,6 +1,7 @@
 import { Component, OnInit, ViewChild } from '@angular/core';
 import { FormControl, NgForm } from '@angular/forms';
 import { AnalisisLexico } from '../../../classes/AnalisisLexico/analisis-lexico';
+import { Token } from '../../../classes/Token/token';
 
 @Component({
   selector: 'app-principal',
@@ -16,8 +17,12 @@ export class PrincipalComponent implements OnInit {
     
   }
   
+  //VARIABLES
+  listaTokens: Token[] = [];
+  listaErrores: Token[] = [];
 
-  contador: number = 1;
+
+  contador: number = 1; //contador de pestañas
   
   tabs = ['Pestaña 1'];
   selected = new FormControl(0);
@@ -43,7 +48,12 @@ export class PrincipalComponent implements OnInit {
     analisis_Lexico(informacion);
   }
 }
+
 function analisis_Lexico(entrada:string) {
   let lexico = new AnalisisLexico();
   lexico.separaLineas(entrada);
+}
+
+function analisis_Semantico() {
+  
 }
