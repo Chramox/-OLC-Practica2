@@ -3,17 +3,17 @@ import { type } from 'os';
 export class Token {
    
     // ATRIBUTOS DE LA CLASE CON SUS RESPECTIVOS GET Y SET
-    private _tipoToken: Tipo;
+    private _tipoToken: TipoToken;
     private _valorToken: string;
     private _ID: number;
     private _fila: number;
     private _columna: number;
 
 
-    public get tipoToken(): Tipo {
+    public get tipoToken(): TipoToken {
         return this._tipoToken;
     }
-    public set tipoToken(value: Tipo) {
+    public set tipoToken(value: TipoToken) {
         this._tipoToken = value;
     }
     
@@ -49,19 +49,17 @@ export class Token {
    
    
    
-    constructor();
-    constructor(typeToken?: Tipo, valueToken?: string);
-    constructor(typeToken?: Tipo, valueToken?: string, id?:number, fila?:number, columna?:number ){
+    constructor(typeToken?: TipoToken, valueToken?: string, id?:number, fila?:number, columna?:number ){
         this._tipoToken = typeToken;
         this._valorToken = valueToken;
         this._ID = id;
         this._fila = fila;
         this._columna = columna;
     }
-    
+    //constructor(typeToken?: TipoToken, valueToken?: string);
 }
 
-export enum Tipo
+export enum TipoToken
    {
         // SIMBOLOS ESPECIALES
         CORCHETE_APERTURA,  //  [ X
@@ -71,19 +69,22 @@ export enum Tipo
         DOS_PUNTOS,         //  : X
         SIGNO_IGUAL,        //  = X
         ADMIRACION_CIERRE,  //  !  // no lo he puesto porque no se si va a servir
-        PARENTESIS_APERTURA,//    X
-        PARENTESIS_CIERRE,  //    X
-        COMILLA_SIMPE,      //  '  [REVISAR]
+        PARENTESIS_APERTURA,//     X
+        PARENTESIS_CIERRE,  //     X
+        COMILLA_SIMPLE,     //  '  [REVISAR]
         COMILLA_DOBLE,      //  "  [REVISAR]
-        COMA,               //  , X
-        PUNTO,              //    X
-        PUNTO_COMA,         //    X 
+        COMA,               //  ,  X
+        PUNTO,              //  .  X
+        PUNTO_COMA,         //  ;  X 
+        DIAGONAL_INVERSO,    //  \  X
         // OPERADORES
         OP_SUMA,            //    X 
-        OP_RESTA,           //    X 
-        OP_DIVISION,        //    X 
-        OP_MULTIPLICACION,  //    X 
+        GUION,           //    X 
+        DIAGONAL,        //    X 
+        ASTERISCO,  //    X 
         GUION_BAJO,         //    X
+        I_BONITA,
+        PALITO_OR,
         // OPERADORES DOBLES 
         DOBLE_IGUAL,        // == X
         MAYOR_IGUAL,        // >= X
@@ -93,6 +94,8 @@ export enum Tipo
         DECREMENTO1,        // -- X
         SUMA_IGUAL,         // += X 
         RESTA_IGUAL,        // -= X  
+        DOBLE_OR,           // ||
+        DOBLE_AND,          // &&
         // OPERADORES MAYOR Y MENOR
         MAYOR,              //  > X
         MENOR,              //  < X
