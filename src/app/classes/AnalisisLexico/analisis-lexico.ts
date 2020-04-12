@@ -15,10 +15,10 @@ export class AnalisisLexico {
     esComentarioMultiple: boolean = false;
     esNumeroFlotante: boolean = false;
     
-    listaTokens:any;
-    listaErrores:any;
+    listaTokens: Token[] = [];
+    listaErrores:Token[] = [];
 
-    separaLineas(Lineas:string):void {
+    public separaLineas(Lineas:string):void {
         Lineas += "#";
         let lines: string[] = Lineas.split('\n');
         lines.forEach(line => {
@@ -29,10 +29,12 @@ export class AnalisisLexico {
         this.fila++;
         this.columna = 0;
         let c:string;
-
+        console.log("ESTAMOS ANALIZANDO LEXIMANETE");
+        
         for (let i = 0; i < entrada.length; i++) {
-            const c = entrada[i];
+            c = entrada[i];
             this.columna++;
+            
 // TODO: TERMINAR ANALISIS LEXICO -- VER TRADUCCION QUE HICE EN JAVA
             switch (this.estado) {
                 case 0: //ESTADO INICIAL
@@ -197,12 +199,13 @@ export class AnalisisLexico {
                                     // generarHTML(listaErrores);
                                     console.log("FIN DEL ANALISIS LEXICO  ");
                                     this.listaTokens.forEach( Token => {
-                                        console.log(Token.getLexema() + "<------>" + Token.getTipoToken());
+                                        Token = <Token>Token;
+                                        console.log(Token.lexemaToken + "<------>" + Token.tipoTokString());
                                     });
                                     if (this.listaErrores.length > 0)
                                     {
                                         this.listaErrores.forEach( Token => {
-                                            console.log(Token.getLexema() + "<------>" + Token.getTipoToken());
+                                            console.log(Token.lexemaToken+ "<------>" + Token.tipoTokString());
                                         });
                                     }
                                     else 

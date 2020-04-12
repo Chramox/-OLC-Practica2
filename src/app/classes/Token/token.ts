@@ -1,4 +1,4 @@
-import { type } from 'os';
+//import { type } from 'os';
 
 export class Token {
    
@@ -9,7 +9,7 @@ export class Token {
     private _fila: number;
     private _columna: number;
 
-
+    
     public get tipoToken(): TipoToken {
         return this._tipoToken;
     }
@@ -55,6 +55,9 @@ export class Token {
         this._ID = id;
         this._fila = fila;
         this._columna = columna;
+    }
+    public tipoTokString(): string{
+        return this._tipoToken.toString();
     }
     //constructor(typeToken?: TipoToken, valueToken?: string);
 }
