@@ -35,7 +35,6 @@ export class AnalisisLexico {
             c = entrada[i];
             this.columna++;
             
-// TODO: TERMINAR ANALISIS LEXICO -- VER TRADUCCION QUE HICE EN JAVA
             switch (this.estado) {
                 case 0: //ESTADO INICIAL
                     {

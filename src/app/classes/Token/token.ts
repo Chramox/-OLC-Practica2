@@ -44,7 +44,6 @@ export class Token {
     public set columna(value: number) {
         this._columna = value;
     }
-    //TODO: REVISAR SI HAY QUE HACER OPERACIONES ARITMETICAS O NO
    // private valorObjeto: any;
    
    
@@ -61,82 +60,81 @@ export class Token {
     }
     //constructor(typeToken?: TipoToken, valueToken?: string);
 }
-
 export enum TipoToken
    {
         // SIMBOLOS ESPECIALES
-        CORCHETE_APERTURA,  //  [ X
-        CORCHETE_CIERRE,    //  ] X
-        LLAVE_APERTURA,     //  { X
-        LLAVE_CIERRE,       //  } X
-        DOS_PUNTOS,         //  : X
-        SIGNO_IGUAL,        //  = X
-        ADMIRACION_CIERRE,  //  !  // no lo he puesto porque no se si va a servir
-        PARENTESIS_APERTURA,//     X
-        PARENTESIS_CIERRE,  //     X
-        COMILLA_SIMPLE,     //  '  [REVISAR]
-        COMILLA_DOBLE,      //  "  [REVISAR]
-        COMA,               //  ,  X
-        PUNTO,              //  .  X
-        PUNTO_COMA,         //  ;  X 
-        DIAGONAL_INVERSO,    //  \  X
+        CORCHETE_APERTURA = 'CORCHETE_APERTURA',  //  [ X
+        CORCHETE_CIERRE = 'CORCHETE_CIERRE',    //  ] X
+        LLAVE_APERTURA = 'LLAVE_APERTURA',     //  { X
+        LLAVE_CIERRE = 'LLAVE_CIERRE',       //  } X
+        DOS_PUNTOS = 'DOS_PUNTOS',         //  : X
+        SIGNO_IGUAL = 'SIGNO_IGUAL',        //  = X
+        ADMIRACION_CIERRE = 'ADMIRACION_CIERRE',  //  !  // no lo he puesto porque no se si va a servir
+        PARENTESIS_APERTURA = 'PARENTESIS_APERTURA',//     X
+        PARENTESIS_CIERRE = 'PARENTESIS_CIERRE',  //     X
+        COMILLA_SIMPLE = 'COMILLA_SIMPLE',     //  '  [REVISAR]
+        COMILLA_DOBLE = 'COMILLA_DOBLE',      //  "  [REVISAR]
+        COMA = 'COMA',               //  ,  X
+        PUNTO = 'PUNTO',              //  .  X
+        PUNTO_COMA = 'PUNTO_COMA',         //  ;  X 
+        DIAGONAL_INVERSO = 'DIAGONAL_INVERSO',    //  \  X
         // OPERADORES
-        OP_SUMA,            //    X 
-        GUION,           //    X 
-        DIAGONAL,        //    X 
-        ASTERISCO,  //    X 
-        GUION_BAJO,         //    X
-        I_BONITA,
-        PALITO_OR,
+        OP_SUMA = 'OP_SUMA',            //    X 
+        GUION = 'GUION',           //    X 
+        DIAGONAL = 'DIAGONAL',        //    X 
+        ASTERISCO = 'ASTERISCO',  //    X 
+        GUION_BAJO = 'GUION_BAJO',         //    X
+        I_BONITA = 'I_BONITA',
+        PALITO_OR = 'PALITO_OR',
         // OPERADORES DOBLES 
-        DOBLE_IGUAL,        // == X
-        MAYOR_IGUAL,        // >= X
-        MENOR_IGUAL,        // <= X
-        DIFERENTEA,         // != X
-        INCREMENTO1,        // ++ X
-        DECREMENTO1,        // -- X
-        SUMA_IGUAL,         // += X 
-        RESTA_IGUAL,        // -= X  
-        DOBLE_OR,           // ||
-        DOBLE_AND,          // &&
+        DOBLE_IGUAL = 'DOBLE_IGUAL',        // == X
+        MAYOR_IGUAL = 'MAYOR_IGUAL',        // >= X
+        MENOR_IGUAL = 'MENOR_IGUAL',        // <= X
+        DIFERENTEA = 'DIFERENTEA',         // != X
+        INCREMENTO1 = 'INCREMENTO1',        // ++ X
+        DECREMENTO1 = 'DECREMENTO1',        // -- X
+        SUMA_IGUAL = 'SUMA_IGUAL',         // += X 
+        RESTA_IGUAL = 'RESTA_IGUAL',        // -= X  
+        DOBLE_OR = 'DOBLE_OR',           // ||
+        DOBLE_AND = 'DOBLE_AND',          // &&
         // OPERADORES MAYOR Y MENOR
-        MAYOR,              //  > X
-        MENOR,              //  < X
+        MAYOR = 'MAYOR',              //  > X
+        MENOR = 'MENOR',              //  < X
         // -----------------------------
-        NUMERO_ENTERO,
-        NUMERO_FLOTANTE,
-        CADENA,
-        ERROR,
-        IDENTIFICADOR, // NOMBRES DE METODOS, VARIABLES, CLASES, ETC.
+        NUMERO_ENTERO = 'NUMERO_ENTERO',
+        NUMERO_FLOTANTE = 'NUMERO_FLOTANTE',
+        CADENA = 'CADENA',
+        ERROR = 'ERROR',
+        IDENTIFICADOR = 'IDENTIFICADOR', // NOMBRES DE METODOS, VARIABLES, CLASES, ETC.
         // -----------------------------
         // PALABRAS RESERVADAS
-        MAIN,
-        IF,              //    X 
-        ELSE,            //    X 
-        FOR,             //    X 
-        WHILE,           //    X 
-        SWITCH,          //    X 
-        CONSOLE,         //    X 
-        WRITELINE,       //    X 
-        BREAK,           //    X
-        STATIC,         //     X
-        VOID,       //         X
-        CLASS,          //     X
-        TRUE,           //     X
-        FALSE,          //     X
-        NEW,            //     X
-        ARGS,           //     X
-        CASE,
-        DEFAULT,
-        GRAFICAR_VECTOR,
+        MAIN = 'MAIN',
+        IF = 'IF',              //    X 
+        ELSE = 'ELSE',            //    X 
+        FOR = 'FOR',             //    X 
+        WHILE = 'WHILE',           //    X 
+        SWITCH = 'SWITCH',          //    X 
+        CONSOLE = 'CONSOLE',         //    X 
+        WRITELINE = 'WRITELINE',       //    X 
+        BREAK = 'BREAK',           //    X
+        STATIC = 'STATIC',         //     X
+        VOID = 'VOID',       //         X
+        CLASS = 'CLASS',          //     X
+        TRUE = 'TRUE',           //     X
+        FALSE = 'FALSE',          //     X
+        NEW = 'NEW',            //     X
+        ARGS = 'ARGS',           //     X
+        CASE = 'CASE',
+        DEFAULT = 'DEFAULT',
+        GRAFICAR_VECTOR = 'GRAFICAR_VECTOR',
         //TIPOS DE VARIABLES
-        INT,             //    X 
-        FLOAT,           //    X 
-        CHAR,            //    X 
-        STRING,          //    X 
-        BOOL,             //    X 
+        INT = 'INT',             //    X 
+        FLOAT = 'FLOAT',           //    X 
+        CHAR = 'CHAR',            //    X 
+        STRING = 'STRING',          //    X 
+        BOOL = 'BOOL',             //    X 
         // COMENTARIOS
-        COMENTARIO_SIMPLE, // //
-        COMENTARIO_MULTILINEA, // /*
+        COMENTARIO_SIMPLE = 'COMENTARIO_SIMPLE', // //
+        COMENTARIO_MULTILINEA = 'COMENTARIO_MULTILINEA', // /*
         // */
    }
