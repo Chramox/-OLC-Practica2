@@ -24,14 +24,20 @@ class ErrorSintactico{
 export class Sintactico {
 
     //VARIABLES DE CONTROL PARA EL ANALISIS SINTACTICO
-    tokenActual: Token;
-    controlToken:number;
-    listaTokens:Token[] =[];
-    listaErrores:ErrorSintactico[] = [];
+    private tokenActual: Token;
+    private controlToken:number;
+    private listaTokens:Token[] =[];
+    private listaErrores:ErrorSintactico[] = [];
     //VARIABLES PARA LA TRADUCCION
-    imprimirConsola:string;
-    Traduccion:string;
+    private _Traduccion: string;
+    public get Traduccion(): string {
+        return this._Traduccion;
+    }
+    public set Traduccion(value: string) {
+        this._Traduccion = value;
+    }
     tabulacion:string;
+
 
     //VARIABLES AUXILIARES
     esFor: boolean = false;
@@ -832,4 +838,5 @@ export class Sintactico {
             this.tabulacion += "\t";
         }
     }
+
 }
