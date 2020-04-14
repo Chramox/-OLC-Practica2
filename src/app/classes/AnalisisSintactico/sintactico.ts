@@ -40,6 +40,9 @@ export class Sintactico {
     primerValFOR:boolean = false;
     primerDato:boolean = false;
     condicionFOR:string = "";
+    //AUXILIARES PARA EL SWITCH
+    contadorCase:number = 0;
+    variableCondicionCase:Token;
     //METODO QUE EMPIEZA EL ANALISIS SINTACTICO
     public parsear(tokens:Token[]):void{
         this.listaTokens = tokens;
@@ -89,6 +92,26 @@ export class Sintactico {
             console.log("SENTENCIA DECLA");
             this.SentenciaDeclaracion_Asignacion_Variables(); // YA TRADUCION [FALTA PROBAR ARREGLOS]
         }
+        else if (this.tokenActual.tipoToken === TipoToken.WHILE) {
+            console.log("SENTENCIA WHILE");
+            this.Sentencia_While(); // YA TRADUCIDO
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.FOR)  // PENDIENTE DE TRADUCCION
+        {
+            console.log("SENTENCIA FOR");
+            this.Sentencia_For();
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.SWITCH)
+        {
+            console.log("SENTENCIA SWITCH");
+            this.Sentencia_Switch();
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.CONSOLE)
+        {
+            console.log("SENTENCIA IMPRIMIR");
+            this.Sentencia_Imprimir();
+        }
+        this.LISTA_TODAS_SENTENCIAS();
     }
     /*------------------------------------------------------------------
             DECLARACION Y ASIGNACION DE VARIABLES
@@ -585,6 +608,11 @@ export class Sintactico {
             this.emparejar(TipoToken.MENOR);
         }
     }
+    /*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+                                    CONDICIONALES ------------------------------------------------------------------------------------------------------------------------------------
+    -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------  */
+
+
     /*------------------------------------------------------------------
     SENTENCIA IF 
     -------------------------------------------------------------------   */
@@ -626,6 +654,169 @@ export class Sintactico {
         }
         else{ } // EPSILON
     }
+    /*------------------------------------------------------------------
+           SENTENCIA WHILE  -----------
+    -------------------------------------------------------------------   */
+    private Sentencia_While():void {
+        if (this.tokenActual.tipoToken === TipoToken.WHILE) 
+        {
+            this.emparejar(TipoToken.WHILE);
+            this.Traduccion +=  this.tabulacion + "while";
+            this.Traduccion += " " + this.tokenActual.lexemaToken;
+            this.emparejar(TipoToken.PARENTESIS_APERTURA);
+            this.Condicion();
+            this.Traduccion += " " + this.tokenActual.lexemaToken + "\n"; //salto de linea
+            this.emparejar(TipoToken.PARENTESIS_CIERRE);
+
+            this.emparejar(TipoToken.LLAVE_APERTURA);
+            this.AumentarTab();
+            this.LISTA_TODAS_SENTENCIAS();
+            this.disminuirTab();
+        }
+        this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
+    }
+     /*------------------------------------------------------------------
+           SENTENCIA FOR
+    -------------------------------------------------------------------   */
+    public Sentencia_For():void {
+        let variable = "";
+        let condicion = "";
+        if (this.tokenActual.tipoToken === TipoToken.FOR) 
+        {
+            this.emparejar(TipoToken.FOR);
+            //this.contadorVariablesFor++;
+            this.esFor = true;
+            this.primerValFOR = false;
+            this.emparejar(TipoToken.PARENTESIS_APERTURA);
+                
+            
+            this.SentenciaDeclaracion_Asignacion_Variables(); // POSIBLE ERROR, QUE DECLARE UN ARRAY (AUNQUE C# DEJA HACERLO)
+            this.primerValFOR = true;
+            this.Traduccion += "\n" + this.tabulacion + "while ";
+
+            this.Condicion(); // LA CONDICION YA ESTA TRADUCIDA
+            this.emparejar(TipoToken.PUNTO_COMA);
+            this.Asignacion_VALOR();
+            
+            this.emparejar(TipoToken.PARENTESIS_CIERRE); // TERMINA LAS CONDICIONES DEL FOR
+            this.esFor = false;
+            this.Traduccion += ":\n";
+            this.AumentarTab();
+            this.emparejar(TipoToken.LLAVE_APERTURA); // EMPIEZA EL FOR
+            variable = this.variableContadorFOR.lexemaToken;
+    
+            condicion = this.condicionFOR;
+            //Console.WriteLine("variable for " + variable);
+            //Console.WriteLine("variable condicion " + condicion);
+            this.LISTA_TODAS_SENTENCIAS();
+            //AUMENTO DE LA VARIABLE DEL FOR
+            
+            this.emparejar(TipoToken.LLAVE_CIERRE);
+            if (condicion == "++")
+            {
+                // variable = variableContadorFOR.getLexema();
+                this.Traduccion += this.tabulacion + variable + " += " + "1\n";
+            }
+            else if (condicion == "--")
+            {
+                this.Traduccion += this.tabulacion + variable + " -= " + "1\n";
+            }
+            else
+            {
+                this.Traduccion += this.tabulacion + variable + " " + condicion + " " + "1\n";
+            }
+        }
+        this.disminuirTab();
+        this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
+
+        
+    }
+    //TODO: REVISAR LA TRADUCCION A PYTHON DEL SWITCH (HAY QUE CAMBIARLA, ANTES CREO QUE ESTABA COMO UN ELSE IF)
+    /*------------------------------------------------------------------
+          SENTENCIA SWITCH
+    -------------------------------------------------------------------   */
+    public Sentencia_Switch():void {
+        if (this.tokenActual.tipoToken == TipoToken.SWITCH) 
+        {
+            this.emparejar(TipoToken.SWITCH);
+            this.Traduccion += this.tabulacion + "if ";
+            this.emparejar(TipoToken.PARENTESIS_APERTURA);
+            this.Traduccion += "" + this.tokenActual.lexemaToken + " == ";
+            this.variableCondicionCase = this.tokenActual; // GUARDAMOS EL NOMBRE DE LA VARIABLE QUE SE VA A USAR EL LOS CASES
+            this.emparejar(TipoToken.IDENTIFICADOR);
+            this.emparejar(TipoToken.PARENTESIS_CIERRE);
+    
+            this.emparejar(TipoToken.LLAVE_APERTURA);
+            this.List_Case();
+            this.Case_Default();
+            this.List_Case();
+    
+            this.emparejar(TipoToken.LLAVE_CIERRE);
+            this.contadorCase = 0; // REINICIAR EL CONTADOR DE CASE
+        }
+        this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
+    }
+    private List_Case():void {
+        if (this.tokenActual.tipoToken == TipoToken.CASE)
+        {
+            this.Case();
+            this.List_Case();
+        }
+        else { } // EPSILON 
+    }
+    private Case():void {
+        if (this.contadorCase > 0)
+        {
+            this.Traduccion += this.tabulacion + "elif " + this.variableCondicionCase.lexemaToken + " == "; //nombre de la pinche variable;
+        }
+        this.emparejar(TipoToken.CASE);
+        this.contadorCase++;
+        this.ValorDato();
+        
+        this.emparejar(TipoToken.DOS_PUNTOS);
+        this.Traduccion += ":" + "\n";
+        this.AumentarTab();
+        this.LISTA_TODAS_SENTENCIAS();
+        this.emparejar(TipoToken.BREAK);
+        this.emparejar(TipoToken.PUNTO_COMA);
+        this.disminuirTab();
+    }
+    private Case_Default():void  // default es opcional
+    {
+        if (this.tokenActual.tipoToken == TipoToken.DEFAULT) 
+        {
+            this.emparejar(TipoToken.DEFAULT);
+            this.Traduccion += this.tabulacion + "else"; 
+            this.emparejar(TipoToken.DOS_PUNTOS);
+            this.Traduccion += ":" + "\n";
+            this.AumentarTab();
+            this.LISTA_TODAS_SENTENCIAS();
+            this.emparejar(TipoToken.BREAK);
+            this.emparejar(TipoToken.PUNTO_COMA);
+            this.disminuirTab();
+        }
+    }
+     /*------------------------------------------------------------------
+          SENTENCIA IMPRIMIR
+       -------------------------------------------------------------------   */
+       public Sentencia_Imprimir():void {
+           this.emparejar(TipoToken.CONSOLE);
+           this.emparejar(TipoToken.PUNTO);
+           this.emparejar(TipoToken.WRITELINE);
+           this.Traduccion += this.tabulacion + "print";
+           this.emparejar(TipoToken.PARENTESIS_APERTURA);
+           this.Traduccion += "( ";
+           this.ValorDato();
+           this.emparejar(TipoToken.PARENTESIS_CIERRE);
+           this.Traduccion += " )";
+           this.emparejar(TipoToken.PUNTO_COMA);
+
+           this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
+       }
+
+       /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        * -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
+        * -------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
     /*------------------------------------------------------------------
         MANEJO DE TABS PARA LA TRADUCCION
     ------------------------------------------------------------------- */
