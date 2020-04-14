@@ -126,7 +126,7 @@ export enum TipoToken
         ARGS = 'ARGS',           //     X
         CASE = 'CASE',
         DEFAULT = 'DEFAULT',
-        GRAFICAR_VECTOR = 'GRAFICAR_VECTOR',
+        RETURN = 'RETURN',
         //TIPOS DE VARIABLES
         INT = 'INT',             //    X 
         FLOAT = 'FLOAT',           //    X 

@@ -582,10 +582,10 @@ export class AnalisisLexico {
             this.agregarToken(TipoToken.MAIN);
             return true;
         }
-        else if (auxiliarLexema ==  "graficarVector")
+        else if (auxiliarLexema ==  "return")
         {
             this.idToken = 53;
-            this.agregarToken(TipoToken.GRAFICAR_VECTOR);
+            this.agregarToken(TipoToken.RETURN);
             return true;
         }
         else
