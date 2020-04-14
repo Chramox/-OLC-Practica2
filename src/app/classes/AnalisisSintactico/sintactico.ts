@@ -54,6 +54,7 @@ export class Sintactico {
         this.listaTokens = tokens;
         this.controlToken = 0;
         this.tokenActual = this.listaTokens[0];
+        
     }
 
     private emparejar(tipo_esperado: TipoToken){

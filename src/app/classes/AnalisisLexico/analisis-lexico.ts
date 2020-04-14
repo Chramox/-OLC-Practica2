@@ -10,12 +10,21 @@ export class AnalisisLexico {
     public idToken: number;
     auxiliarLexema: string = "";
 
-    esCadena: boolean = false;
-    esComentarioSimple: boolean = false;
-    esComentarioMultiple: boolean = false;
-    esNumeroFlotante: boolean = false;
-    
-    listaTokens: Token[] = [];
+
+    private esCadena: boolean = false;
+    private esComentarioSimple: boolean = false;
+    private esComentarioMultiple: boolean = false;
+    private esNumeroFlotante: boolean = false;
+    //private esComillaSimple:boolean = false;
+
+
+    private _listaTokens: Token[] = [];
+    public get listaTokens(): Token[] {
+        return this._listaTokens;
+    }
+    public set listaTokens(value: Token[]) {
+        this._listaTokens = value;
+    }
     listaErrores:Token[] = [];
 
     public separaLineas(Lineas:string):void {
@@ -118,6 +127,16 @@ export class AnalisisLexico {
                                 this.estado = 5;
                             }
                             else if (c == '!') // MANDAR A ESTADO 5
+                            {
+                                this.auxiliarLexema += c;
+                                this.estado = 5;
+                            }
+                            else if (c == '|') // MANDAR A ESTADO 5
+                            {
+                                this.auxiliarLexema += c;
+                                this.estado = 5;
+                            }
+                            else if (c == '&') // MANDAR A ESTADO 5
                             {
                                 this.auxiliarLexema += c;
                                 this.estado = 5;
@@ -276,13 +295,18 @@ export class AnalisisLexico {
                     break;
                 case 3://CADENAS
                     {
-                        if (c == '"' && this.esCadena == false)
+                    if ((c == '"' || c == '\'') && this.esCadena == false)
                     {
+                        // if (c == '"') {
+                        //     this.esComillaSimple = false;
+                        // }
+                        // else{
+                        //     this.esComillaSimple = true;
+                        // }
                         this.estado = 3;
                         this.esCadena = true;
                     }
-
-                    if (c == '"' && this.esCadena == true)
+                    else if ((c == '"' || c == '\'') && this.esCadena == true)
                     {
                         this.esCadena = false;
                         this.idToken = 41;
@@ -639,10 +663,30 @@ export class AnalisisLexico {
             this.idToken = 18;
             this.agregarToken(TipoToken.DECREMENTO1);
         }
+        else if (auxiliarLexema == "||")
+        {
+            this.idToken = 25;
+            this.agregarToken(TipoToken.DOBLE_OR);
+        }  
+        else if (auxiliarLexema == "&&")
+        {
+            this.idToken = 26;
+            this.agregarToken(TipoToken.DOBLE_AND);
+        }  
         else if (auxiliarLexema == "=") // OPERADORES DE UN SOLO CARACTER
         {
-            this.idToken = 18;
+            this.idToken = 25;
             this.agregarToken(TipoToken.SIGNO_IGUAL);
+        }
+        else if (auxiliarLexema == "|") // OPERADORES DE UN SOLO CARACTER
+        {
+            this.idToken = 25;
+            this.agregarToken(TipoToken.PALITO_OR);
+        }
+        else if (auxiliarLexema == "&") // OPERADORES DE UN SOLO CARACTER
+        {
+            this.idToken = 25;
+            this.agregarToken(TipoToken.I_BONITA);
         }
         else if (auxiliarLexema == "-")
         {
@@ -673,7 +717,9 @@ export class AnalisisLexico {
         {
             this.idToken = 24;
             this.agregarToken(TipoToken.MENOR);
-        }  // COMENTARIOS
+        }
+        
+          // COMENTARIOS
         else if (auxiliarLexema == "//")
         {
             this.estado = 6;
