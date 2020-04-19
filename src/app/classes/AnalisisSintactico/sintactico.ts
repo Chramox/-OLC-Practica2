@@ -46,6 +46,7 @@ export class Sintactico {
     variableContadorFOR:Token;
     primerValFOR:boolean = false;
     primerDato:boolean = false;
+    contadorBucles: number = 0;
     //AUXILIARES PARA EL FOR
     condicionFOR:string = "";
     esFor: boolean = false;
@@ -131,6 +132,31 @@ export class Sintactico {
             console.log("SENTENCIA IMPRIMIR");
             this.Sentencia_Imprimir();
         }//YA REVISADO
+        else if(this.tokenActual.tipoToken === TipoToken.BREAK && this.contadorCase==0){
+            if(this.contadorBucles>0){
+                this.emparejar(TipoToken.BREAK);
+                this.emparejar(TipoToken.PUNTO_COMA);
+            }
+            else{
+                let error =  new ErrorSintactico(this.tokenActual, TipoToken.IDENTIFICADOR);
+                console.log('ERROR SINTACTICO, NO PUEDE PONER '+this.tokenActual.lexemaToken+' ALLI');
+                this.listaErrores.push(error);
+            }
+        }
+        else if(this.tokenActual.tipoToken === TipoToken.DO){
+            this.Sentencia_DoWhile();
+        }
+        else if(this.tokenActual.tipoToken === TipoToken.CONTINUE){
+            if(this.contadorBucles>0){
+                this.emparejar(TipoToken.CONTINUE);
+                this.emparejar(TipoToken.PUNTO_COMA);
+            }
+            else{
+                let error =  new ErrorSintactico(this.tokenActual, TipoToken.IDENTIFICADOR);
+                console.log('ERROR SINTACTICO, NO PUEDE PONER '+this.tokenActual.lexemaToken+' ALLI');
+                this.listaErrores.push(error);
+            }
+        }
         else if (this.tokenActual.tipoToken === TipoToken.COMENTARIO_SIMPLE)
         {
             let vector:string[] = this.tokenActual.lexemaToken.split('/');
@@ -864,6 +890,7 @@ export class Sintactico {
     private Sentencia_While():void {
         if (this.tokenActual.tipoToken === TipoToken.WHILE) 
         {
+            this.contadorBucles++;
             this.emparejar(TipoToken.WHILE);
             this.Traduccion +=  this.tabulacion + "while";
             this.Traduccion += " " + this.tokenActual.lexemaToken;
@@ -878,6 +905,37 @@ export class Sintactico {
             this.disminuirTab();
             this.emparejar(TipoToken.LLAVE_CIERRE);
         }
+        this.contadorBucles--;
+        this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
+    }
+    /*------------------------------------------------------------------
+           SENTENCIA DO WHILE  -----------
+    ------------------1-------------------------------------------------   */
+    private Sentencia_DoWhile():void {
+        if (this.tokenActual.tipoToken === TipoToken.DO) 
+        {
+            this.contadorBucles++;
+            this.emparejar(TipoToken.DO);
+            this.Traduccion +=  this.tabulacion + "while True:\n";
+            
+            this.emparejar(TipoToken.LLAVE_APERTURA);
+            this.AumentarTab();
+            this.LISTA_TODAS_SENTENCIAS();
+            
+            this.emparejar(TipoToken.LLAVE_CIERRE);
+
+            this.emparejar(TipoToken.WHILE);
+            this.Traduccion += this.tabulacion + "if" + this.tokenActual.lexemaToken;
+            this.emparejar(TipoToken.PARENTESIS_APERTURA);
+            this.Condicion();
+            this.Traduccion += "" + this.tokenActual.lexemaToken + ":\n"; //salto de linea
+            this.AumentarTab();
+            this.Traduccion += this.tabulacion + "break\n";
+            this.disminuirTab();
+            this.emparejar(TipoToken.PARENTESIS_CIERRE);
+            this.disminuirTab();
+        }
+        this.contadorBucles--;
         this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
     }
      /*------------------------------------------------------------------
@@ -888,6 +946,7 @@ export class Sintactico {
         // let condicion = "";
         if (this.tokenActual.tipoToken === TipoToken.FOR) 
         {
+            this.contadorBucles++;
             this.emparejar(TipoToken.FOR);
             //this.contadorVariablesFor++;
             this.esFor = true;
@@ -935,6 +994,7 @@ export class Sintactico {
             // }
         }
         this.disminuirTab();
+        this.contadorBucles--;
         this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
 
         
@@ -1052,7 +1112,12 @@ export class Sintactico {
        public Sentencia_Imprimir():void {
            this.emparejar(TipoToken.CONSOLE);
            this.emparejar(TipoToken.PUNTO);
-           this.emparejar(TipoToken.WRITELINE);
+           if(this.tokenActual.tipoToken === TipoToken.WRITELINE){
+                this.emparejar(TipoToken.WRITELINE);
+           }
+           else if(this.tokenActual.tipoToken === TipoToken.WRITE){
+               this.emparejar(TipoToken.WRITE);
+           }
            this.Traduccion += this.tabulacion + "print";
            this.emparejar(TipoToken.PARENTESIS_APERTURA);
            this.Traduccion += "(";
@@ -1063,7 +1128,7 @@ export class Sintactico {
            this.Traduccion += "\n";
            this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
        }
-
+       
        /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         * -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         * -------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/

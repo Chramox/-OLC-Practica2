@@ -116,6 +116,7 @@ export enum TipoToken
         SWITCH = 'SWITCH',          //    X 
         CONSOLE = 'CONSOLE',         //    X 
         WRITELINE = 'WRITELINE',       //    X 
+        WRITE = 'WRITE',
         BREAK = 'BREAK',           //    X
         STATIC = 'STATIC',         //     X
         VOID = 'VOID',       //         X
@@ -127,6 +128,8 @@ export enum TipoToken
         CASE = 'CASE',
         DEFAULT = 'DEFAULT',
         RETURN = 'RETURN',
+        DO = 'DO', 
+        CONTINUE = 'CONTINUE',
         //TIPOS DE VARIABLES
         INT = 'INT',             //    X 
         FLOAT = 'FLOAT',           //    X 

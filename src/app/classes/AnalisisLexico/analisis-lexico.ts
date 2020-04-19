@@ -499,6 +499,12 @@ export class AnalisisLexico {
             this.agregarToken(TipoToken.WRITELINE);
             return true;
         }
+        else if (auxiliarLexema ==  "Write")
+        {
+            this.idToken = 6;
+            this.agregarToken(TipoToken.WRITE);
+            return true;
+        }
         else if (auxiliarLexema ==  "int")
         {
             this.idToken = 7;
@@ -610,6 +616,18 @@ export class AnalisisLexico {
         {
             this.idToken = 53;
             this.agregarToken(TipoToken.RETURN);
+            return true;
+        }
+        else if (auxiliarLexema ==  "do")
+        {
+            this.idToken = 54;
+            this.agregarToken(TipoToken.DO);
+            return true;
+        }
+        else if (auxiliarLexema ==  "continue")
+        {
+            this.idToken = 55;
+            this.agregarToken(TipoToken.CONTINUE);
             return true;
         }
         else
