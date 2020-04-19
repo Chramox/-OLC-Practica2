@@ -134,6 +134,7 @@ export class Sintactico {
         }//YA REVISADO
         else if(this.tokenActual.tipoToken === TipoToken.BREAK && this.contadorCase==0){
             if(this.contadorBucles>0){
+                this.Traduccion += this.tabulacion + "break\n";
                 this.emparejar(TipoToken.BREAK);
                 this.emparejar(TipoToken.PUNTO_COMA);
             }
@@ -148,6 +149,7 @@ export class Sintactico {
         }
         else if(this.tokenActual.tipoToken === TipoToken.CONTINUE){
             if(this.contadorBucles>0){
+                this.Traduccion += this.tabulacion + "continue\n";
                 this.emparejar(TipoToken.CONTINUE);
                 this.emparejar(TipoToken.PUNTO_COMA);
             }
@@ -1128,7 +1130,7 @@ export class Sintactico {
            this.Traduccion += "\n";
            this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
        }
-       
+
        /*--------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         * -------------------------------------------------------------------------------------------------------------------------------------------------------------------------
         * -------------------------------------------------------------------------------------------------------------------------------------------------------------------------*/
