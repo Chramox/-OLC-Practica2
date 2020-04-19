@@ -14,10 +14,12 @@
           <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Archivo</a>
           <div class="dropdown-menu" >
             <a class="dropdown-item" href="#">Nuevo </a>
-            <a class="dropdown-item" href="#">Abrir</a>
+            <a class="dropdown-item" ><label style="cursor: pointer;">
+              Abrir
+             <input id="subirArchivo" type="file" style="visibility: hidden;"/>
+         </label></a>
             <div class="dropdown-divider"></div>
-            <a class="dropdown-item" href="#">Guardar</a>
-            <a class="dropdown-item" href="#">Guardar como</a>
+            <a class="dropdown-item" (click)="guardarArchivo()">Guardar</a>
             <div class="dropdown-divider"></div>
             <a class="dropdown-item" href="#">Salir</a>
           </div>
@@ -26,9 +28,8 @@
           <a class="nav-link dropdown-toggle" data-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Reportes</a>
           <div class="dropdown-menu" >
             <a class="dropdown-item" (click)="getInfoTab()">Traducir a Python</a>
-            <a class="dropdown-item" href="#">Generar HTML</a>
-            <a class="dropdown-item" href="#">Generar JSON</a>
-            <a class="dropdown-item" href="#">Leer Archivo</a>
+            <a class="dropdown-item"  (click)="generarHTML()">Generar HTML</a>
+            <a class="dropdown-item"  (click)="generarJSON()">Generar JSON</a>
           </div>
         </li>
       <li class="nav-item">
@@ -59,7 +60,7 @@
                 </div>
               </div>
               <div class="card-body">
-                <mat-tab-group [selectedIndex]="tabs.length"  #tabGroup>
+                <mat-tab-group id="tabGroup" [selectedIndex]="tabs.length"  #tabGroup (selectedTabChange)="tabChanged($event)">
                   <mat-tab *ngFor="let tab of tabs; let index = index" [label]="tab">
                     <!-- CONTENIDO ADENTRO DE LA PESTAÑA -->
                     <div style="padding: 15px;">
@@ -123,18 +124,18 @@
           <div class="card border-primary mb-3" style="width: 40rem;">
             <div class="card-header">Salidas</div>
             <div class="card-body">
-                <mat-tab-group>
+                <mat-tab-group >
                     <mat-tab label="HTML"> 
                         <form style="padding-top: 15px;">
                             <div class="form-group">
-                                <textarea class="form-control" id="textarea_html" rows="5" disabled #consolaPython></textarea>
+                                <textarea class="form-control" id="textarea_html" rows="5" disabled #consolaHTML></textarea>
                             </div>
                         </form>
                     </mat-tab>
                     <mat-tab label="JSON">
                         <form style="padding-top: 15px;">
                             <div class="form-group">
-                                <textarea class="form-control" id="textarea_json" rows="5" disabled #consolaPython></textarea>
+                                <textarea class="form-control" id="textarea_json" rows="5" disabled #consolaJSON></textarea>
                             </div>
                         </form>
                     </mat-tab>

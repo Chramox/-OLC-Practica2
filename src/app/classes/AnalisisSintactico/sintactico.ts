@@ -1,4 +1,5 @@
 import { Token, TipoToken } from '../Token/token';
+import { THIS_EXPR } from '@angular/compiler/src/output/output_ast';
 class ErrorSintactico{
     private _tokenActual: Token;
     public get tokenActual(): Token {
@@ -29,38 +30,48 @@ export class Sintactico {
     private listaTokens:Token[] =[];
     private listaErrores:ErrorSintactico[] = [];
     //VARIABLES PARA LA TRADUCCION
-    private _Traduccion: string;
+    private _Traduccion: string = "";
     public get Traduccion(): string {
         return this._Traduccion;
     }
     public set Traduccion(value: string) {
         this._Traduccion = value;
     }
-    tabulacion:string;
+    tabulacion:string = "";
 
 
     //VARIABLES AUXILIARES
-    esFor: boolean = false;
+    terminarSintactico:boolean = false;
     NombreVariabletemp:string;
     variableContadorFOR:Token;
     primerValFOR:boolean = false;
     primerDato:boolean = false;
+    //AUXILIARES PARA EL FOR
     condicionFOR:string = "";
+    esFor: boolean = false;
+    inicio_rango: number = -1;
+    final_rango:number = -1;
+    //primera_declaracion:boolean = false;
     //AUXILIARES PARA EL SWITCH
     contadorCase:number = 0;
     variableCondicionCase:Token;
     //METODO QUE EMPIEZA EL ANALISIS SINTACTICO
     public parsear(tokens:Token[]):void{
+        this.terminarSintactico = false;
         this.listaTokens = tokens;
+        console.log(this.listaTokens.length);
         this.controlToken = 0;
         this.tokenActual = this.listaTokens[0];
-        
+        this.LISTA_TODAS_SENTENCIAS();
     }
 
     private emparejar(tipo_esperado: TipoToken){
 
         //TODO:REVISAR CUAL ERA EL MOOD PANICO DE RECUPERACION Y HACER LA IMPLEMENTACION
-        
+        // if(this.tokenActual.tipoToken === TipoToken.PUNTO_COMA)
+        // {
+        //     this.Traduccion += "\n";            
+        // }
         if (this.tokenActual.tipoToken != tipo_esperado) {
             //IMPLEMENTACION DEL MODO PANICO
             if (this.tokenActual.tipoToken === TipoToken.COMENTARIO_MULTILINEA 
@@ -76,13 +87,15 @@ export class Sintactico {
                 //COMO EL ERROR SE CORRERIA ENTRA EL MODO PANICO, COMERSE TODO HASTA ENCONTRAR PUNTO Y COMA
             }
         }
+        else{console.log("val :" + this.tokenActual.tipoToken + " esperado: " + tipo_esperado);}
         this.controlToken++;
         if (this.controlToken < this.listaTokens.length) {
             this.tokenActual = this.listaTokens[this.controlToken];
-            console.log('Token siguiente: ' + this.tokenActual.tipoToken);
+            console.log('Token siguiente: ' + this.tokenActual.tipoToken + ' cT: ' + this.controlToken);
         }
         else{
             console.log('FIN DEL ANALISIS SINTACTICO');
+            this.terminarSintactico = true;
         }
     }
     //TODO: FALTAN TODAS LAS OPERACIONES LOGICAS, PERO YA ESTA LA DECLARACION DE VECTORES Y LA DECLARACION DE VARIABLES, ASI COMO SU RESPECTIVA TRADUCCION
@@ -93,21 +106,21 @@ export class Sintactico {
         if (this.tokenActual.tipoToken === TipoToken.IF) {
             console.log("SENTENCIA IF");
             this.Sentencia_IF();
-        }
+        } //YA REVISADO
         else if (this.Reconocer_TipoDato() || this.tokenActual.tipoToken === TipoToken.IDENTIFICADOR) // PARA DECLARACION Y ASIGNACION DE VARIABLES
         {
             console.log("SENTENCIA DECLA");
             this.SentenciaDeclaracion_Asignacion_Variables(); // YA TRADUCION [FALTA PROBAR ARREGLOS]
-        }
+        }//YA REVISADO
         else if (this.tokenActual.tipoToken === TipoToken.WHILE) {
             console.log("SENTENCIA WHILE");
             this.Sentencia_While(); // YA TRADUCIDO
-        }
+        }//YA REVISADO
         else if (this.tokenActual.tipoToken === TipoToken.FOR)  // PENDIENTE DE TRADUCCION
         {
             console.log("SENTENCIA FOR");
             this.Sentencia_For();
-        }
+        }//YA REVISADO
         else if (this.tokenActual.tipoToken === TipoToken.SWITCH)
         {
             console.log("SENTENCIA SWITCH");
@@ -117,9 +130,52 @@ export class Sintactico {
         {
             console.log("SENTENCIA IMPRIMIR");
             this.Sentencia_Imprimir();
+        }//YA REVISADO
+        else if (this.tokenActual.tipoToken === TipoToken.COMENTARIO_SIMPLE)
+        {
+            let vector:string[] = this.tokenActual.lexemaToken.split('/');
+            try
+            {
+                let index = 2;
+                this.Traduccion += "... "
+                do {
+                    this.Traduccion +=  vector[index];
+                    index++;
+                } while (index< (vector.length-1));
+                this.Traduccion += "... "
+            }
+            catch (error)
+            {
+                console.log(error);
+            }
+        
+            this.emparejar(TipoToken.COMENTARIO_SIMPLE);
+            this.LISTA_TODAS_SENTENCIAS();
         }
-        this.LISTA_TODAS_SENTENCIAS();
+        else if (this.tokenActual.tipoToken === TipoToken.COMENTARIO_MULTILINEA) 
+        {/**/
+            let vct:string[] = this.tokenActual.lexemaToken.split('*');
+            try
+            {
+                let index = 1;
+                this.Traduccion += "... "
+                do {
+                    this.Traduccion +=  vct[index];
+                    index++;
+                } while (index< (vct.length-1));
+                this.Traduccion += "... "
+            }
+            catch (error)
+            {
+                console.log(error);
+            }
+            this.emparejar(TipoToken.COMENTARIO_MULTILINEA);
+            this.Traduccion += "\n";
+            this.LISTA_TODAS_SENTENCIAS();
+        }
+        
     }
+     
     /*------------------------------------------------------------------
             DECLARACION Y ASIGNACION DE VARIABLES
     -------------------------------------------------------------------   */
@@ -175,13 +231,13 @@ export class Sintactico {
     }
     public SentenciaDeclaracion_Asignacion_Variables():void{
         /*                                      GRAMATICA UTILIZADA
-            <SENTENCIA_DECLARACION> :: = <TIPO_VAR> Id <ASIGNACION_LISTA_VARIABLES> TOKEN.TIPO.PUNTO_COMA
+            <SENTENCIA_DECLARACION> :: = <TIPO_VAR> Id <ASIGNACION_LISTA_VARIABLES> TipoToken.PUNTO_COMA
         */
     
         if (this.Reconocer_TipoDato()) //DECLARACION
         {
             this.TipoDato();
-
+            
             if (this.tokenActual.tipoToken === TipoToken.IDENTIFICADOR)
             {
                 if (this.esFor == true)
@@ -193,6 +249,10 @@ export class Sintactico {
                 this.emparejar(TipoToken.IDENTIFICADOR);
                 this.AsignacionOrListaVariables();
                 this.emparejar(TipoToken.PUNTO_COMA);
+                if (this.esFor == false)
+                {
+                    this.Traduccion += "\n";
+                }
                 this.primerDato = false;
 
             }
@@ -228,14 +288,24 @@ export class Sintactico {
     {
         if (this.tokenActual.tipoToken === TipoToken.SIGNO_IGUAL)
         {
-            this.Traduccion += "" + this.tabulacion + this.NombreVariabletemp + " " + this.tokenActual.lexemaToken;
+            // if (this.primera_declaracion === true) {
+            //     this.Traduccion += this.tabulacion + "var " + this.NombreVariabletemp + " " + this.tokenActual.lexemaToken;
+            //     this.primera_declaracion = false;
+            // }
+            if (this.esFor == false) {
+                this.Traduccion += "" + this.tabulacion + this.NombreVariabletemp + " " + this.tokenActual.lexemaToken + " ";
+            }
+            
             this.emparejar(TipoToken.SIGNO_IGUAL);
             
             this.ValorDato();
             // @ts-ignore
             if (this.tokenActual.tipoToken === TipoToken.COMA)
             {
-                this.Traduccion += "\n";
+                if (this.esFor == false) {
+                    this.Traduccion += "\n";
+                }
+                
                 this.Lista_ID();
             }
           
@@ -408,6 +478,7 @@ export class Sintactico {
         }
         else { } // EPSILON EL ARRAY PUEDE ESTAR VACIO 
         this.emparejar(TipoToken.PUNTO_COMA);
+        this.Traduccion += "\n";
     }
     private ListaObjetos():void
     {
@@ -442,54 +513,135 @@ export class Sintactico {
         if (this.tokenActual.tipoToken == TipoToken.CADENA)
         {
             this.primerDato = true;
-            this.Traduccion += "\"" + this.tokenActual.lexemaToken + "\"";
+            if(this.esFor == false){
+                this.Traduccion += "\"" + this.tokenActual.lexemaToken + "\"";
+            }else{
+                if(this.inicio_rango != -1){
+                    this.final_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+                else{
+                    this.inicio_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+            }
             this.emparejar(TipoToken.CADENA);
         }
         else if (this.tokenActual.tipoToken == TipoToken.NUMERO_ENTERO)
         {
             this.primerDato = true;
-            this.Traduccion += " " + this.tokenActual.lexemaToken;
+            if(this.esFor == false){
+                this.Traduccion += "" + this.tokenActual.lexemaToken;
+            }else{
+                if(this.inicio_rango != -1){
+                    this.final_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+                else{
+                    this.inicio_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+            }
             this.emparejar(TipoToken.NUMERO_ENTERO);
 
         }
         else if (this.tokenActual.tipoToken == TipoToken.NUMERO_FLOTANTE)
         {
             this.primerDato = true;
-            this.Traduccion += " " + this.tokenActual.lexemaToken;
+            if(this.esFor == false){
+                this.Traduccion += "" + this.tokenActual.lexemaToken;
+            }else{
+                if(this.inicio_rango != -1){
+                    this.final_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+                else{
+                    this.inicio_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+            }
             this.emparejar(TipoToken.NUMERO_FLOTANTE);
 
         }
         else if (this.tokenActual.tipoToken == TipoToken.TRUE)
         {
             this.primerDato = true;
-            this.Traduccion += " " + this.tokenActual.lexemaToken;
+            if(this.esFor == false){
+                this.Traduccion += " " + this.tokenActual.lexemaToken;
+            }else{
+                if(this.inicio_rango != -1){
+                    this.final_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+                else{
+                    this.inicio_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+            }
             this.emparejar(TipoToken.TRUE);
         }
         else if (this.tokenActual.tipoToken == TipoToken.FALSE)
         {
             this.primerDato = true;
-            this.Traduccion += " " + this.tokenActual.lexemaToken;
+            if(this.esFor == false){
+                this.Traduccion += " " + this.tokenActual.lexemaToken;
+            }else{
+                if(this.inicio_rango != -1){
+                    this.final_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+                else{
+                    this.inicio_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+            }
             this.emparejar(TipoToken.FALSE);
         }
         else if (this.tokenActual.tipoToken == TipoToken.IDENTIFICADOR)
         {
             this.primerDato = true;
-            this.Traduccion += " " + this.tokenActual.lexemaToken;
+            if(this.esFor == false){
+                this.Traduccion += "" + this.tokenActual.lexemaToken;
+            }else{
+                if(this.inicio_rango != -1){
+                    this.final_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+                else{
+                    this.inicio_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+            }
             this.emparejar(TipoToken.IDENTIFICADOR);
             // @ts-ignore
             if (this.tokenActual.tipoToken == TipoToken.CORCHETE_APERTURA)
             {
                 this.emparejar(TipoToken.CORCHETE_APERTURA);
-                this.Traduccion += "[";
+                if(this.esFor == false){
+                    this.Traduccion += "[";
+                }else{
+                    if(this.inicio_rango != -1){
+                        this.final_rango = parseInt(this.tokenActual.lexemaToken);
+                    }
+                    else{
+                        this.inicio_rango = parseInt(this.tokenActual.lexemaToken);
+                    }
+                }
                 this.ValorDato();
-                this.Traduccion += " ]";
+                if(this.esFor == false){
+                    this.Traduccion += " ]";
+                }else{
+                    if(this.inicio_rango != -1){
+                        this.final_rango = parseInt(this.tokenActual.lexemaToken);
+                    }
+                    else{
+                        this.inicio_rango = parseInt(this.tokenActual.lexemaToken);
+                    }
+                }
                 this.emparejar(TipoToken.CORCHETE_CIERRE);
             }
         }
         else if (this.tokenActual.tipoToken == TipoToken.CHAR) // FALTA AGREGAR EL RECONOCIMIENTO DEL CHAR AL AUTOMATA
         {
             this.primerDato = true;
-            this.Traduccion += " " + this.tokenActual.lexemaToken;
+            if(this.esFor == false){
+                this.Traduccion += " " + this.tokenActual.lexemaToken;
+            }else{
+                if(this.inicio_rango != -1){
+                    this.final_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+                else{
+                    this.inicio_rango = parseInt(this.tokenActual.lexemaToken);
+                }
+            }
             this.emparejar(TipoToken.CHAR);
         }
         else
@@ -589,7 +741,19 @@ export class Sintactico {
     private OperadoresLogicos():void  // == , >= , <= , != , > , <
     {
        console.log("metodo: OperadoresLogicos");
-        this.Traduccion += " " + this.tokenActual.lexemaToken; 
+        if (this.esFor == false && this.tokenActual.tipoToken !== TipoToken.DOBLE_AND &&
+            this.tokenActual.tipoToken !== TipoToken.DOBLE_OR) {
+           this.Traduccion += "" + this.tokenActual.lexemaToken;
+        }
+        else if(this.esFor == false)
+        {
+            if(this.tokenActual.tipoToken ===  TipoToken.DOBLE_OR){
+                this.Traduccion += "or";
+            }
+            else if(this.tokenActual.tipoToken === TipoToken.DOBLE_AND){
+                this.Traduccion += "and";
+            }
+        }
         if (this.tokenActual.tipoToken === TipoToken.DOBLE_IGUAL)  // == 
         {
             this.emparejar(TipoToken.DOBLE_IGUAL);
@@ -614,6 +778,14 @@ export class Sintactico {
         {
             this.emparejar(TipoToken.MENOR);
         }
+        else if (this.tokenActual.tipoToken === TipoToken.DOBLE_AND)  // <
+        {
+            this.emparejar(TipoToken.DOBLE_AND);
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.DOBLE_OR)  // <
+        {
+            this.emparejar(TipoToken.DOBLE_OR);
+        }
     }
     /*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
                                     CONDICIONALES ------------------------------------------------------------------------------------------------------------------------------------
@@ -633,9 +805,9 @@ export class Sintactico {
             this.emparejar(TipoToken.PARENTESIS_APERTURA);
             this.Condicion();
             this.Traduccion += " :\n";
-            this.AumentarTab();
             this.emparejar(TipoToken.PARENTESIS_CIERRE);
             this.emparejar(TipoToken.LLAVE_APERTURA);
+            this.AumentarTab();
             this.LISTA_TODAS_SENTENCIAS();
             this.emparejar(TipoToken.LLAVE_CIERRE);
             this.disminuirTab();
@@ -644,20 +816,45 @@ export class Sintactico {
         this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
     }
     private Condicion():void{
-        this.ValorDato();
-        this.OperadoresLogicos();
-        this.ValorDato();
+        if(this.tokenActual.tipoToken === TipoToken.ADMIRACION_CIERRE){
+            this.emparejar(TipoToken.ADMIRACION_CIERRE);
+            this.Traduccion += "not ";
+            this.ValorDato();
+        }
+        else{
+            this.ValorDato();
+            this.OperadoresLogicos();
+            this.ValorDato();
+        }
     }   
     private ELSE():void{
         if (this.tokenActual.tipoToken === TipoToken.ELSE)
         {
             this.emparejar(TipoToken.ELSE);
-            this.Traduccion += this.tabulacion + "else:\n";
-            this.AumentarTab();
-            this.emparejar(TipoToken.LLAVE_APERTURA);
-            this.LISTA_TODAS_SENTENCIAS();
-            this.emparejar(TipoToken.LLAVE_CIERRE);
-            this.disminuirTab();
+            //ELSE IF
+            //@ts-ignore
+            if (this.tokenActual.tipoToken === TipoToken.IF) {
+                this.emparejar(TipoToken.IF);
+                this.Traduccion += this.tabulacion+"elif "; 
+                this.emparejar(TipoToken.PARENTESIS_APERTURA);
+                this.Condicion();
+                this.Traduccion += " :\n";
+                this.emparejar(TipoToken.PARENTESIS_CIERRE);
+                this.emparejar(TipoToken.LLAVE_APERTURA);
+                this.AumentarTab();
+                this.LISTA_TODAS_SENTENCIAS();
+                this.emparejar(TipoToken.LLAVE_CIERRE);
+                this.disminuirTab();
+                this.ELSE();
+            }
+            else{
+                this.Traduccion += this.tabulacion + "else:\n";
+                this.AumentarTab();
+                this.emparejar(TipoToken.LLAVE_APERTURA);
+                this.LISTA_TODAS_SENTENCIAS();
+                this.emparejar(TipoToken.LLAVE_CIERRE);
+                this.disminuirTab();
+            }
         }
         else{ } // EPSILON
     }
@@ -672,13 +869,14 @@ export class Sintactico {
             this.Traduccion += " " + this.tokenActual.lexemaToken;
             this.emparejar(TipoToken.PARENTESIS_APERTURA);
             this.Condicion();
-            this.Traduccion += " " + this.tokenActual.lexemaToken + "\n"; //salto de linea
+            this.Traduccion += "" + this.tokenActual.lexemaToken + "\n"; //salto de linea
             this.emparejar(TipoToken.PARENTESIS_CIERRE);
 
             this.emparejar(TipoToken.LLAVE_APERTURA);
             this.AumentarTab();
             this.LISTA_TODAS_SENTENCIAS();
             this.disminuirTab();
+            this.emparejar(TipoToken.LLAVE_CIERRE);
         }
         this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
     }
@@ -686,8 +884,8 @@ export class Sintactico {
            SENTENCIA FOR
     -------------------------------------------------------------------   */
     public Sentencia_For():void {
-        let variable = "";
-        let condicion = "";
+        // let variable = "";
+        // let condicion = "";
         if (this.tokenActual.tipoToken === TipoToken.FOR) 
         {
             this.emparejar(TipoToken.FOR);
@@ -699,39 +897,42 @@ export class Sintactico {
             
             this.SentenciaDeclaracion_Asignacion_Variables(); // POSIBLE ERROR, QUE DECLARE UN ARRAY (AUNQUE C# DEJA HACERLO)
             this.primerValFOR = true;
-            this.Traduccion += "\n" + this.tabulacion + "while ";
+           
 
             this.Condicion(); // LA CONDICION YA ESTA TRADUCIDA
             this.emparejar(TipoToken.PUNTO_COMA);
             this.Asignacion_VALOR();
-            
+            this.Traduccion += this.tabulacion + "for " + this.variableContadorFOR.lexemaToken + " in range (" + this.inicio_rango + "," + this.final_rango + ")";
+            //REINCIANDO VALORES
+            this.final_rango = -1;
+            this.inicio_rango = -1;
             this.emparejar(TipoToken.PARENTESIS_CIERRE); // TERMINA LAS CONDICIONES DEL FOR
             this.esFor = false;
             this.Traduccion += ":\n";
             this.AumentarTab();
             this.emparejar(TipoToken.LLAVE_APERTURA); // EMPIEZA EL FOR
-            variable = this.variableContadorFOR.lexemaToken;
+            // variable = this.variableContadorFOR.lexemaToken;
     
-            condicion = this.condicionFOR;
+            // condicion = this.condicionFOR;
             //Console.WriteLine("variable for " + variable);
             //Console.WriteLine("variable condicion " + condicion);
             this.LISTA_TODAS_SENTENCIAS();
             //AUMENTO DE LA VARIABLE DEL FOR
             
             this.emparejar(TipoToken.LLAVE_CIERRE);
-            if (condicion == "++")
-            {
-                // variable = variableContadorFOR.getLexema();
-                this.Traduccion += this.tabulacion + variable + " += " + "1\n";
-            }
-            else if (condicion == "--")
-            {
-                this.Traduccion += this.tabulacion + variable + " -= " + "1\n";
-            }
-            else
-            {
-                this.Traduccion += this.tabulacion + variable + " " + condicion + " " + "1\n";
-            }
+            // if (condicion == "++")
+            // {
+            //     // variable = variableContadorFOR.getLexema();
+            //     this.Traduccion += this.tabulacion + variable + " += " + "1\n";
+            // }
+            // else if (condicion == "--")
+            // {
+            //     this.Traduccion += this.tabulacion + variable + " -= " + "1\n";
+            // }
+            // else
+            // {
+            //     this.Traduccion += this.tabulacion + variable + " " + condicion + " " + "1\n";
+            // }
         }
         this.disminuirTab();
         this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
@@ -746,19 +947,24 @@ export class Sintactico {
         if (this.tokenActual.tipoToken == TipoToken.SWITCH) 
         {
             this.emparejar(TipoToken.SWITCH);
-            this.Traduccion += this.tabulacion + "if ";
             this.emparejar(TipoToken.PARENTESIS_APERTURA);
-            this.Traduccion += "" + this.tokenActual.lexemaToken + " == ";
+          //  this.Traduccion += "" + this.tokenActual.lexemaToken + " == ";
             this.variableCondicionCase = this.tokenActual; // GUARDAMOS EL NOMBRE DE LA VARIABLE QUE SE VA A USAR EL LOS CASES
             this.emparejar(TipoToken.IDENTIFICADOR);
             this.emparejar(TipoToken.PARENTESIS_CIERRE);
-    
+            
             this.emparejar(TipoToken.LLAVE_APERTURA);
+            this.Traduccion += this.tabulacion + "def switch(case, ";
             this.List_Case();
             this.Case_Default();
             this.List_Case();
-    
+            
             this.emparejar(TipoToken.LLAVE_CIERRE);
+            if(this.contadorCase > 0){
+                this.disminuirTab();
+                this.Traduccion += this.tabulacion + "}\n";
+                this.disminuirTab();
+            }
             this.contadorCase = 0; // REINICIAR EL CONTADOR DE CASE
         }
         this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
@@ -772,35 +978,72 @@ export class Sintactico {
         else { } // EPSILON 
     }
     private Case():void {
-        if (this.contadorCase > 0)
-        {
-            this.Traduccion += this.tabulacion + "elif " + this.variableCondicionCase.lexemaToken + " == "; //nombre de la pinche variable;
+        let bandera: number = this.controlToken;
+        while (this.tokenActual.tipoToken !== TipoToken.DOS_PUNTOS && this.listaTokens.length > this.controlToken) {
+            this.controlToken++;
+            this.tokenActual = this.listaTokens[this.controlToken];
         }
+        if (this.tokenActual.tipoToken === TipoToken.IDENTIFICADOR && this.contadorCase == 0)
+        {
+            this.esFor = true; //NO QUEREMOS QUE TRADUZCA NADA
+            
+            this.variableCondicionCase = this.tokenActual;
+            console.log(" variable contador " + this.variableCondicionCase.lexemaToken);
+            this.AumentarTab();
+            this.Traduccion += "" + this.variableCondicionCase.lexemaToken + "):\n" + this.tabulacion + "switcher = {\n";
+            this.AumentarTab();
+            this.emparejar(TipoToken.IDENTIFICADOR);
+            this.AsignacionOrListaVariables();
+            this.emparejar(TipoToken.PUNTO_COMA);
+            //PARA ESTA COSA
+            this.esFor = false;
+            this.controlToken = bandera;
+        }
+        else if(this.contadorCase == 0){
+            this.AumentarTab();
+            this.Traduccion += "None):\n" + this.tabulacion + "switcher = {\n";
+            this.AumentarTab();
+        }
+        this.controlToken = bandera;
+        this.tokenActual = this.listaTokens[this.controlToken];
         this.emparejar(TipoToken.CASE);
         this.contadorCase++;
+        this.Traduccion += this.tabulacion;
         this.ValorDato();
         
         this.emparejar(TipoToken.DOS_PUNTOS);
-        this.Traduccion += ":" + "\n";
-        this.AumentarTab();
+        this.Traduccion += ":\n";
+        //PRIMER VALOR TIENE QUER SER UNA ASIGNACION
+        //this.AumentarTab();
         this.LISTA_TODAS_SENTENCIAS();
+        if(this.Traduccion[this.Traduccion.length-1] == "\n" || this.Traduccion[this.Traduccion.length-1] == ";"){
+            this.Traduccion = this.Traduccion.slice(0,-1);
+            this.Traduccion += ",\n"
+        }
+        else{
+            this.Traduccion += ',\n';
+        }
         this.emparejar(TipoToken.BREAK);
         this.emparejar(TipoToken.PUNTO_COMA);
-        this.disminuirTab();
+        //this.disminuirTab();
     }
     private Case_Default():void  // default es opcional
     {
         if (this.tokenActual.tipoToken == TipoToken.DEFAULT) 
         {
             this.emparejar(TipoToken.DEFAULT);
-            this.Traduccion += this.tabulacion + "else"; 
+            this.Traduccion += this.tabulacion + (this.contadorCase+1) + ':\n'; 
             this.emparejar(TipoToken.DOS_PUNTOS);
-            this.Traduccion += ":" + "\n";
-            this.AumentarTab();
             this.LISTA_TODAS_SENTENCIAS();
             this.emparejar(TipoToken.BREAK);
             this.emparejar(TipoToken.PUNTO_COMA);
-            this.disminuirTab();
+            if(this.Traduccion[this.Traduccion.length-1] == "\n" || this.Traduccion[this.Traduccion.length-1] == ";"){
+                this.Traduccion = this.Traduccion.slice(0,-1);
+                this.Traduccion += ",\n"
+            }
+            else{
+                this.Traduccion += ',\n';
+            }
         }
     }
      /*------------------------------------------------------------------
@@ -812,12 +1055,12 @@ export class Sintactico {
            this.emparejar(TipoToken.WRITELINE);
            this.Traduccion += this.tabulacion + "print";
            this.emparejar(TipoToken.PARENTESIS_APERTURA);
-           this.Traduccion += "( ";
+           this.Traduccion += "(";
            this.ValorDato();
            this.emparejar(TipoToken.PARENTESIS_CIERRE);
-           this.Traduccion += " )";
+           this.Traduccion += ")";
            this.emparejar(TipoToken.PUNTO_COMA);
-
+           this.Traduccion += "\n";
            this.LISTA_TODAS_SENTENCIAS();  //CUANDO TERMINE UNA PASE A LA SIGUIENTE
        }
 
