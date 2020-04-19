@@ -121,7 +121,7 @@ function analisis_Lexico(entrada:string) {
   }
   
 }
-//TODO: DESCARGAR TRADUCCION .PY
+//TODO: DESCARGAR TRADUCCION .PY, AGREGAR BOTON A LAS OPCIONES
 function analisis_Semantico(listaTokens:Token[]) {
   let sintactico = new Sintactico();
   sintactico.parsear(listaTokens);

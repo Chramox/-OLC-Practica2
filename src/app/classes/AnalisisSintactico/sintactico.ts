@@ -100,8 +100,6 @@ export class Sintactico {
         }
     }
     //TODO: FALTAN TODAS LAS OPERACIONES LOGICAS, PERO YA ESTA LA DECLARACION DE VECTORES Y LA DECLARACION DE VARIABLES, ASI COMO SU RESPECTIVA TRADUCCION
-    //TODO: REVISAR AL FINALIZAR LAS TRADUCCIONES HECHAS
-    //TODO: NUEVA GRAMATICA PARA EL SWITCH
     //TODO: HACER GRAMATICA PARA LOS METODOS Y SU RESPECTIVA TRADUCCION
     private LISTA_TODAS_SENTENCIAS(){
         if (this.tokenActual.tipoToken === TipoToken.IF) {
@@ -1001,7 +999,7 @@ export class Sintactico {
 
         
     }
-    //TODO: REVISAR LA TRADUCCION A PYTHON DEL SWITCH (HAY QUE CAMBIARLA, ANTES CREO QUE ESTABA COMO UN ELSE IF)
+    
     /*------------------------------------------------------------------
           SENTENCIA SWITCH
     -------------------------------------------------------------------   */
