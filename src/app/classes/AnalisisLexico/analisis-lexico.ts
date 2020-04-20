@@ -47,7 +47,7 @@ export class AnalisisLexico {
         this.fila++;
         this.columna = 0;
         let c:string;
-        console.log("ESTAMOS ANALIZANDO LEXIMANETE");
+        //console.log("ESTAMOS ANALIZANDO LEXIMANETE");
         
         for (let i = 0; i < entrada.length; i++) {
             c = entrada[i];
@@ -218,6 +218,9 @@ export class AnalisisLexico {
                                 }
              
                             }
+                            else if(c == '\t'){
+                                this.estado = 0;
+                            }
                             else
                             {
                                 //FIN DE CADENA
@@ -244,7 +247,11 @@ export class AnalisisLexico {
                                         //Analizador_Sintactico analizador_Sintactico = new Analizador_Sintactico();
                                       //  analizador_Sintactico.parsear(listaTokens, EditorTexto, EditorTraduccion, EditorConsola);
                                     }
-                                  }
+                                }
+                                else{
+                                    this.auxiliarLexema += c;
+                                    this.estado = 4;
+                                }
                             }
                     }
                     break;
@@ -479,6 +486,7 @@ export class AnalisisLexico {
     {
         this.listaErrores.push(new Token(TipoToken.ERROR, this.auxiliarLexema, 14, this.fila, this.columna));
         this.estado = 0;
+        this.auxiliarLexema = "";
     }
     palabrasReservadas(auxiliarLexema: string): boolean {
         //si no coincide con ninguna palabra reservada es error

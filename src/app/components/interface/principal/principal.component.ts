@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Output } from '@angular/core';
 import { FormControl, NgForm } from '@angular/forms';
 import { AnalisisLexico } from '../../../classes/AnalisisLexico/analisis-lexico';
 import { Token } from '../../../classes/Token/token';
-import { Sintactico, TabVariables } from '../../../classes/AnalisisSintactico/sintactico';
+import { Sintactico, TabVariables, ErrorSintactico } from '../../../classes/AnalisisSintactico/sintactico';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 import { AnalisisHtml } from "../../../classes/Analisis_HTML/analisis-html";
 
@@ -90,11 +90,11 @@ export class PrincipalComponent implements OnInit {
   }
   generarHTML(){
     //let informacion = '<html><head></head><body><h1>HOLA MUNDO</h1></body></html>';
-    let informacion:string = (<HTMLInputElement>document.getElementById("textarea_html")).value;
+    let informacion:string = localStorage.getItem("html");
     download('salidaHTML.html', informacion);
   }
   generarJSON(){
-    let informacion:string = (<HTMLInputElement>document.getElementById("textarea_json")).value;
+    let informacion:string = localStorage.getItem("json");
     download('salidaJSON.json', informacion);
   }
 }
@@ -116,25 +116,16 @@ function onFileSelect(event) {
   //METIENDO LA INFORMACION EN LA PESTAÑA ACTIVA
 }
 function analisis_Lexico(entrada:string) {
+
   let lexico = new AnalisisLexico();
   lexico.separaLineas(entrada);
   let listaTokens:Token[] = lexico.listaTokens;
-
   let listaErrores:Token[] = lexico.listaErrores;
+  analisis_Semantico(listaTokens, lexico.listaHTML, listaErrores);
 
-  if (listaErrores.length == 0) {
-    analisis_Semantico(listaTokens, lexico.listaHTML);
-  }
-  else{
-    console.log('HAY ERRORES LEXICOS, NO SE PUEDE HACER LA TRADUCCION');
-    listaErrores.forEach(error => {
-      error = <Token>error;
-      console.log('Error '+ error.lexemaToken + ' Linea: ' + error.fila);
-    });
-  }  
 }
 //TODO: DESCARGAR TRADUCCION .PY, AGREGAR BOTON A LAS OPCIONES
-function analisis_Semantico(listaTokens:Token[], listaHTML:Token[]) {
+function analisis_Semantico(listaTokens:Token[], listaHTML:Token[], listaLexicos:Token[]) {
   let tabla = (<HTMLTableElement>document.getElementById('tabla'));
   let sintactico = new Sintactico();
   let salida = (<HTMLInputElement>document.getElementById('textearea_python'));
@@ -145,7 +136,7 @@ function analisis_Semantico(listaTokens:Token[], listaHTML:Token[]) {
   salida.value = "";
   var tableRows = tabla.getElementsByTagName('tr');
   var rowCount = tableRows.length;
-  
+  while(--rowCount) {tabla.deleteRow(rowCount)};
   let genera = new AnalisisHtml();
   genera.analizar(listaHTML);
   if(json != null){
@@ -156,10 +147,14 @@ function analisis_Semantico(listaTokens:Token[], listaHTML:Token[]) {
   }
   localStorage.setItem("json",genera.json);
   localStorage.setItem("html", genera.html);
-  for (var x=rowCount-1; x>0; x--) {
-    tabla.removeChild(tableRows[x]);
-  }
+
   sintactico.parsear(listaTokens);
+  if(sintactico.listaErrores.length > 0 || listaLexicos.length > 0){
+    generarReporte(listaLexicos,sintactico.listaErrores);
+  }
+  else{
+    salida.value = sintactico.Traduccion;
+  }
   //salida.value = sintactico.Traduccion;
   console.log(sintactico.Traduccion);
   let tabla_variables:TabVariables[] = sintactico.listaVariables;
@@ -177,6 +172,76 @@ function analisis_Semantico(listaTokens:Token[], listaHTML:Token[]) {
   });
 
 }
+function generarReporte(listaToken:Token[], listaSintactico: ErrorSintactico[])
+  {
+    let titulo:string;
+    //INICIO 
+    let contador:number = 0;
+    titulo = "Lista de Errores Encontrados";
+    
+
+    let html:string = "<!DOCTYPE html> \n" +
+        "<html>\n" +
+            "<head> \n" +
+                "<title>Tokens Encontrados</title> \n" +
+                "<meta charset = 'UTF-8'> \n" +
+            "</head> \n" +
+            "<body> \n" +
+            "<br><br> \n" +
+            "<center><h1>" + titulo + "</h1><br> \n" +
+            "<style type='text/css'>table{background-color:#c4defb;}</style>\n" +
+            "<div style ='over-flow: scroll;heigth:600px;width:80%;'><table>\n" +
+                "<thead>\n" +
+                    "<tr>\n" +
+                        "<th>No</th>\n" +
+                        "<th>Tipo error</th>\n" +
+                        "<th>Linea</th>\n" +
+                        "<th>Columna</th>\n" +
+                        "<th>Descripcion</th>" +
+                    "</tr> \n" +
+                "</thead>\n" +
+                "<tbody> \n";
+    listaToken.forEach(token => {
+      let Lexema:string = token.lexemaToken;
+      if (token.lexemaToken.includes('<'))
+      {
+          Lexema = token.lexemaToken.replace("<", "[");
+      }
+      else if (token.lexemaToken.includes('>'))
+      {
+          Lexema = token.lexemaToken.replace(">", "]");
+      }
+      else
+      {
+          Lexema = token.lexemaToken;
+      }
+      html += "" +
+        "<tr> \n " +
+            "<td>" + contador + "</td> \n"
+            + "<td>" + "Lexico" + "</td> \n" +
+            "<td>" + token.fila + "</td> \n" +
+            "<td>" + token.columna + "</td> \n" +
+            "<td>" + "El caracter " + Lexema + " no pertenece al lenguaje"+ "</td> \n" +
+        "</tr>\n";
+      contador++;
+    });
+    listaSintactico.forEach(error => {
+      html += "" +
+        "<tr> \n " +
+            "<td>" + contador + "</td> \n"
+            + "<td>" + "Sintactico" + "</td> \n" +
+            "<td>" + error.tokenActual.fila + "</td> \n" +
+            "<td>" + error.tokenActual.columna + "</td> \n" +
+            "<td>" + "Valor actual: " + error.tokenActual.tipoToken + " Se esperaba: " + error.tokenEsperado +  "</td> \n" +
+        "</tr>\n";
+      contador++;
+    });
+    //CERRAR HTML
+    html += "</tbody> \n </table></div> \n </center> \n </body> \n </html> \n";
+    download('ReporteErrores.html', html);
+
+
+  }
 
 function download(filename:string, text:string) {
   var element = document.createElement('a');
