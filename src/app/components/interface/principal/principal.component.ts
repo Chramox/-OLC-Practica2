@@ -3,8 +3,8 @@ import { FormControl, NgForm } from '@angular/forms';
 import { AnalisisLexico } from '../../../classes/AnalisisLexico/analisis-lexico';
 import { Token } from '../../../classes/Token/token';
 import { Sintactico, TabVariables } from '../../../classes/AnalisisSintactico/sintactico';
-import { EventEmitter } from 'events';
 import { MatTabChangeEvent } from '@angular/material/tabs';
+import { AnalisisHtml } from "../../../classes/Analisis_HTML/analisis-html";
 
 @Component({
   selector: 'app-principal',
@@ -19,8 +19,13 @@ export class PrincipalComponent implements OnInit {
      localStorage.setItem("index",index); 
      let subirArchivo = (<HTMLInputElement>document.getElementById("subirArchivo"));
      subirArchivo.addEventListener('change', onFileSelect, false);
+     let json:string = "";
+     let html:string = "";
+     localStorage.setItem("json",json);
+     localStorage.setItem("html",html);
+
   }
-  
+  //TODO: HACER EL DECREMENTO PARA EL FOR
   //VARIABLES
   // private _listaTokens: Token[] = [];
   // public get listaTokens(): Token[] {
@@ -32,7 +37,6 @@ export class PrincipalComponent implements OnInit {
   // listaErrores: Token[] = [];
  
   contador: number = 1; //contador de pestañas
-  
   tabs = ['Pestaña 1'];
   selected = new FormControl(0);
 
@@ -74,6 +78,16 @@ export class PrincipalComponent implements OnInit {
     console.log('index => ', tabChangeEvent.index); 
     localStorage.setItem("index", tabChangeEvent.index.toString()); 
   }
+  meterDatos = (tabChangeEvent: MatTabChangeEvent):void=>{
+    if(tabChangeEvent.index == 0){
+      let html = (<HTMLInputElement>document.getElementById('html'));
+      html.value = localStorage.getItem('html');
+    }
+    else {
+      let json = (<HTMLInputElement>document.getElementById('json'));
+      json.value = localStorage.getItem('json');
+    }
+  }
   generarHTML(){
     //let informacion = '<html><head></head><body><h1>HOLA MUNDO</h1></body></html>';
     let informacion:string = (<HTMLInputElement>document.getElementById("textarea_html")).value;
@@ -109,7 +123,7 @@ function analisis_Lexico(entrada:string) {
   let listaErrores:Token[] = lexico.listaErrores;
 
   if (listaErrores.length == 0) {
-    analisis_Semantico(listaTokens);
+    analisis_Semantico(listaTokens, lexico.listaHTML);
   }
   else{
     console.log('HAY ERRORES LEXICOS, NO SE PUEDE HACER LA TRADUCCION');
@@ -117,19 +131,31 @@ function analisis_Lexico(entrada:string) {
       error = <Token>error;
       console.log('Error '+ error.lexemaToken + ' Linea: ' + error.fila);
     });
-  }
-  
+  }  
 }
 //TODO: DESCARGAR TRADUCCION .PY, AGREGAR BOTON A LAS OPCIONES
-function analisis_Semantico(listaTokens:Token[]) {
+function analisis_Semantico(listaTokens:Token[], listaHTML:Token[]) {
   let tabla = (<HTMLTableElement>document.getElementById('tabla'));
   let sintactico = new Sintactico();
   let salida = (<HTMLInputElement>document.getElementById('textearea_python'));
+  
+  let html = (<HTMLInputElement>document.getElementById('html'));
+  let json = (<HTMLInputElement>document.getElementById('json'));
   //limpiando datos anteriores
   salida.value = "";
   var tableRows = tabla.getElementsByTagName('tr');
   var rowCount = tableRows.length;
-
+  
+  let genera = new AnalisisHtml();
+  genera.analizar(listaHTML);
+  if(json != null){
+    json.value = genera.json;
+  }
+  if(html != null){
+    html.value = genera.html;
+  }
+  localStorage.setItem("json",genera.json);
+  localStorage.setItem("html", genera.html);
   for (var x=rowCount-1; x>0; x--) {
     tabla.removeChild(tableRows[x]);
   }

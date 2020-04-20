@@ -109,18 +109,18 @@
           <div class="card border-primary mb-3">
             <div class="card-header">Salidas</div>
             <div class="card-body">
-                <mat-tab-group >
+                <mat-tab-group (selectedTabChange)="meterDatos($event)">
                     <mat-tab label="HTML"> 
                         <form style="padding-top: 15px;">
                             <div class="form-group">
-                                <textarea class="form-control" id="textarea_html" rows="5" disabled #consolaHTML></textarea>
+                                <textarea class="form-control" id="html" rows="5" disabled #consolaHTML></textarea>
                             </div>
                         </form>
                     </mat-tab>
                     <mat-tab label="JSON">
                         <form style="padding-top: 15px;">
                             <div class="form-group">
-                                <textarea class="form-control" id="textarea_json" rows="5" disabled #consolaJSON></textarea>
+                                <textarea class="form-control" id="json" rows="5" disabled #consolaJSON>localstor</textarea>
                             </div>
                         </form>
                     </mat-tab>

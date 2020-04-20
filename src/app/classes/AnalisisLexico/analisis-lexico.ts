@@ -1,4 +1,6 @@
 import { Token, TipoToken } from '../Token/token';
+import { AnalisisHtml } from '../Analisis_HTML/analisis-html';
+
 
 export class AnalisisLexico {
 
@@ -15,7 +17,7 @@ export class AnalisisLexico {
     private esComentarioSimple: boolean = false;
     private esComentarioMultiple: boolean = false;
     private esNumeroFlotante: boolean = false;
-    //private esComillaSimple:boolean = false;
+    private esComillaSimple:boolean = false;
 
 
     private _listaTokens: Token[] = [];
@@ -26,6 +28,13 @@ export class AnalisisLexico {
         this._listaTokens = value;
     }
     listaErrores:Token[] = [];
+    private _listaHTML: Token[] = [];
+    public get listaHTML(): Token[] {
+        return this._listaHTML;
+    }
+    public set listaHTML(value: Token[]) {
+        this._listaHTML = value;
+    }
 
     public separaLineas(Lineas:string):void {
         Lineas += "#";
@@ -65,6 +74,7 @@ export class AnalisisLexico {
                             //AQUI VAN A IR TODOS LOS CARACTERES ESPECIALES { } : %
                             else if (c == '\'') // COMILLAS DOBLES [WARNING]
                             {
+                                this.esComillaSimple = true;
                                 this.estado = 3; // Puede venir una cadena
                                 //    agregarToken(TipoToken.COMILLA_DOBLE);
                             }
@@ -228,6 +238,8 @@ export class AnalisisLexico {
                                     }
                                     else 
                                     {
+                                        // let html = new AnalisisHtml();
+                                        // html.analizar(this.listaHTML);
                                         console.log("\n\n\n EMPEZANDO ANALISIS SINTACTICO");
                                         //Analizador_Sintactico analizador_Sintactico = new Analizador_Sintactico();
                                       //  analizador_Sintactico.parsear(listaTokens, EditorTexto, EditorTraduccion, EditorConsola);
@@ -310,6 +322,10 @@ export class AnalisisLexico {
                     {
                         this.esCadena = false;
                         this.idToken = 41;
+                        if(this.esComillaSimple){
+                            this.agregarHTML(TipoToken.CADENA);
+                            this.esComillaSimple = false;
+                        }
                         this.agregarToken(TipoToken.CADENA);
                         this.estado = 0;
                     }
@@ -454,6 +470,10 @@ export class AnalisisLexico {
         this.listaTokens.push(new Token(Tipo, this.auxiliarLexema, this.idToken, this.fila, this.columna));
         this.auxiliarLexema = "";
         this.estado = 0;
+    }
+    public agregarHTML(Tipo: TipoToken):void
+    {
+        this._listaHTML.push(new Token(Tipo, this.auxiliarLexema, this.idToken, this.fila, this.columna));
     }
     public agregarErrores():void
     {
