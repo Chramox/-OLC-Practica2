@@ -2,7 +2,7 @@ import { Component, OnInit, ViewChild, Output } from '@angular/core';
 import { FormControl, NgForm } from '@angular/forms';
 import { AnalisisLexico } from '../../../classes/AnalisisLexico/analisis-lexico';
 import { Token } from '../../../classes/Token/token';
-import { Sintactico } from '../../../classes/AnalisisSintactico/sintactico';
+import { Sintactico, TabVariables } from '../../../classes/AnalisisSintactico/sintactico';
 import { EventEmitter } from 'events';
 import { MatTabChangeEvent } from '@angular/material/tabs';
 
@@ -20,7 +20,6 @@ export class PrincipalComponent implements OnInit {
      let subirArchivo = (<HTMLInputElement>document.getElementById("subirArchivo"));
      subirArchivo.addEventListener('change', onFileSelect, false);
   }
-  //TODO: AÑADIR SINTACTICO DE LAS FUNCIONES Y REVISAR SI ESTA VOID ENTRE LOS TOKENS RECONOCIDOS
   
   //VARIABLES
   // private _listaTokens: Token[] = [];
@@ -123,11 +122,34 @@ function analisis_Lexico(entrada:string) {
 }
 //TODO: DESCARGAR TRADUCCION .PY, AGREGAR BOTON A LAS OPCIONES
 function analisis_Semantico(listaTokens:Token[]) {
+  let tabla = (<HTMLTableElement>document.getElementById('tabla'));
   let sintactico = new Sintactico();
-  sintactico.parsear(listaTokens);
   let salida = (<HTMLInputElement>document.getElementById('textearea_python'));
+  //limpiando datos anteriores
+  salida.value = "";
+  var tableRows = tabla.getElementsByTagName('tr');
+  var rowCount = tableRows.length;
+
+  for (var x=rowCount-1; x>0; x--) {
+    tabla.removeChild(tableRows[x]);
+  }
+  sintactico.parsear(listaTokens);
   //salida.value = sintactico.Traduccion;
   console.log(sintactico.Traduccion);
+  let tabla_variables:TabVariables[] = sintactico.listaVariables;
+  tabla_variables.forEach(variable => {
+    let row = tabla.insertRow();
+    let cell1 = row.insertCell();    
+    let cell2 = row.insertCell();      
+    let cell3 = row.insertCell();    
+    let nombre = document.createTextNode(variable.nombre);
+    let fila = document.createTextNode(variable.linea.toString());
+    let tipo  = document.createTextNode(variable.tipo);
+    cell1.appendChild(tipo);
+    cell2.appendChild(nombre);
+    cell3.appendChild(fila);
+  });
+
 }
 
 function download(filename:string, text:string) {

@@ -630,6 +630,24 @@ export class AnalisisLexico {
             this.agregarToken(TipoToken.CONTINUE);
             return true;
         }
+        else if (auxiliarLexema ==  "public")
+        {
+            this.idToken = 56;
+            this.agregarToken(TipoToken.PUBLIC);
+            return true;
+        }
+        else if (auxiliarLexema ==  "private")
+        {
+            this.idToken = 57;
+            this.agregarToken(TipoToken.PRIVATE);
+            return true;
+        }
+        else if (auxiliarLexema ==  "protected")
+        {
+            this.idToken = 58;
+            this.agregarToken(TipoToken.PROTECTED);
+            return true;
+        }
         else
         {
             return false;

@@ -130,6 +130,9 @@ export enum TipoToken
         RETURN = 'RETURN',
         DO = 'DO', 
         CONTINUE = 'CONTINUE',
+        PUBLIC = 'PUBLIC', 
+        PRIVATE = 'PRIVATE',
+        PROTECTED = 'PROTECTED',
         //TIPOS DE VARIABLES
         INT = 'INT',             //    X 
         FLOAT = 'FLOAT',           //    X 
