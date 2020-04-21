@@ -163,7 +163,7 @@ export class Sintactico {
             console.log('FIN DEL ANALISIS SINTACTICO');
             this.terminarSintactico = true;
         }
-    }
+    }//quedo listo
     private LISTA_TODAS_SENTENCIAS(){
         if (this.tokenActual.tipoToken === TipoToken.IF) {
             console.log("SENTENCIA IF");
