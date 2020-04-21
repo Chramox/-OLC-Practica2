@@ -133,12 +133,14 @@ export enum TipoToken
         PUBLIC = 'PUBLIC', 
         PRIVATE = 'PRIVATE',
         PROTECTED = 'PROTECTED',
+        VALOR = 'VALOR',
         //TIPOS DE VARIABLES
         INT = 'INT',             //    X 
         FLOAT = 'FLOAT',           //    X 
         CHAR = 'CHAR',            //    X 
         STRING = 'STRING',          //    X 
         BOOL = 'BOOL',             //    X 
+        DOUBLE = 'DOUBLE',
         // COMENTARIOS
         COMENTARIO_SIMPLE = 'COMENTARIO_SIMPLE', // //
         COMENTARIO_MULTILINEA = 'COMENTARIO_MULTILINEA', // /*

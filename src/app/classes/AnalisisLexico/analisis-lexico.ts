@@ -327,14 +327,21 @@ export class AnalisisLexico {
                     }
                     else if ((c == '"' || c == '\'') && this.esCadena == true)
                     {
-                        this.esCadena = false;
-                        this.idToken = 41;
-                        if(this.esComillaSimple){
-                            this.agregarHTML(TipoToken.CADENA);
-                            this.esComillaSimple = false;
+                        if(c == '"' && this.esComillaSimple == true){
+                            this.auxiliarLexema += c;
+                            this.estado = 3;
+                            this.esCadena = true;
                         }
-                        this.agregarToken(TipoToken.CADENA);
-                        this.estado = 0;
+                        else{
+                            this.esCadena = false;
+                            this.idToken = 41;
+                            if(this.esComillaSimple){
+                                this.agregarHTML(TipoToken.CADENA);
+                                this.esComillaSimple = false;
+                            }
+                            this.agregarToken(TipoToken.CADENA);
+                            this.estado = 0;
+                        }
                     }
                     else //SIGUE CONCATENANDO HASTA QUE ENCUENTRA LA SEGUNDA COMIILA DOBLE
                     {
@@ -670,10 +677,22 @@ export class AnalisisLexico {
             this.agregarToken(TipoToken.PRIVATE);
             return true;
         }
+        else if (auxiliarLexema ==  "private")
+        {
+            this.idToken = 57;
+            this.agregarToken(TipoToken.PRIVATE);
+            return true;
+        }
         else if (auxiliarLexema ==  "protected")
         {
             this.idToken = 58;
             this.agregarToken(TipoToken.PROTECTED);
+            return true;
+        }
+        else if (auxiliarLexema ==  "double")
+        {
+            this.idToken = 59;
+            this.agregarToken(TipoToken.DOUBLE);
             return true;
         }
         else

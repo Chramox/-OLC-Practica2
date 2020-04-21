@@ -139,7 +139,7 @@ export class AnalisisHtml{
         else if(this.auxiliarLexema.toUpperCase() == "<TITLE>"){this.agregarEtiqueta(Etiqueta.TITLE, true);}
         else if(this.auxiliarLexema.toUpperCase().includes("<DIV>")){this.agregarEtiqueta(Etiqueta.DIV, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<P>"){this.agregarEtiqueta(Etiqueta.P, true);}
-        else if(this.auxiliarLexema.toUpperCase() == "<H1>"){this.agregarEtiqueta(Etiqueta.H1, true);}
+        else if(this.auxiliarLexema.toUpperCase().includes("<H>")){this.agregarEtiqueta(Etiqueta.H1, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<BUTTON>"){this.agregarEtiqueta(Etiqueta.BUTTON, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<LABEL>"){this.agregarEtiqueta(Etiqueta.LABEL, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<INPUT>"){this.agregarEtiqueta(Etiqueta.INPUT, true);}

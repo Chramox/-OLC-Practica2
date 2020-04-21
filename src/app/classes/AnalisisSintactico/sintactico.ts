@@ -29,6 +29,8 @@ export class ErrorSintactico{
 export class Sintactico {
 
     //VARIABLES DE CONTROL PARA EL ANALISIS SINTACTICO
+    private banderaRecuperacion: number = -1;
+    private esError:boolean = false;
     private tokenActual: Token;
     private controlToken:number;
     private listaTokens:Token[] =[];
@@ -79,6 +81,7 @@ export class Sintactico {
     //METODO QUE EMPIEZA EL ANALISIS SINTACTICO
     public parsear(tokens:Token[]):void{
         this.terminarSintactico = false;
+        this.esError = false;
         this.listaTokens = tokens;
         console.log(this.listaTokens.length);
         this.controlToken = 0;
@@ -93,22 +96,64 @@ export class Sintactico {
         // {
         //     this.Traduccion += "\n";            
         // }
-        if (this.tokenActual.tipoToken != tipo_esperado) {
-            //IMPLEMENTACION DEL MODO PANICO
-            if (this.tokenActual.tipoToken === TipoToken.COMENTARIO_MULTILINEA 
-                || this.tokenActual.tipoToken === TipoToken.COMENTARIO_SIMPLE ) {
-                //NADA PORQUE ES UN COMENTARIO AGREGADO
+        if (this.esError === true) {
+            if(this.banderaRecuperacion == -1){
+                let buscar:number = this.controlToken+1;
+                let token_busqueda:Token;
+                let salir:boolean = false;
+                while(buscar < this.listaTokens.length){
+                    token_busqueda = this.listaTokens[buscar];
+                    switch (token_busqueda.tipoToken) {
+                        case TipoToken.PUNTO_COMA:
+                            salir = true;
+                            break;
+                        case TipoToken.PARENTESIS_CIERRE:
+                            salir = true;
+                            break;
+                        case TipoToken.LLAVE_CIERRE:
+                            salir = true;
+                            break;
+                        default:
+                            break;
+                    }
+                    if(salir == true){
+                        break;
+                    }
+                    buscar++;
+                }
+                this.banderaRecuperacion = buscar;
             }
-            else{ //ERROR SINTACTICO, SE AGREGA A LA LISTA DE ERRORES
+            //SE SUPONE QUE AMBOS ENCUENTRAN EL PRIMERO
+            if(tipo_esperado == TipoToken.PUNTO_COMA || tipo_esperado == TipoToken.PARENTESIS_CIERRE || tipo_esperado == TipoToken.LLAVE_CIERRE){//HASTA ENCONTRAR QUE COINCIDA CON UN PUNTO Y COMA SE PARA
+                this.esError = false;
+                this.controlToken = this.banderaRecuperacion;
+                this.banderaRecuperacion = -1;
+            }
+            else{
                 let error =  new ErrorSintactico(this.tokenActual, tipo_esperado);
-                console.log('ERROR SINTACTICO');
-                console.log("valor actual " + this.tokenActual.tipoToken);
-                console.log("\tError se esperaba " + tipo_esperado);
                 this.listaErrores.push(error);
-                //COMO EL ERROR SE CORRERIA ENTRA EL MODO PANICO, COMERSE TODO HASTA ENCONTRAR PUNTO Y COMA
             }
         }
-        else{console.log("val :" + this.tokenActual.tipoToken + " esperado: " + tipo_esperado);}
+        else{
+            if (this.tokenActual.tipoToken != tipo_esperado) {
+                //IMPLEMENTACION DEL MODO PANICO
+                if (this.tokenActual.tipoToken === TipoToken.COMENTARIO_MULTILINEA 
+                    || this.tokenActual.tipoToken === TipoToken.COMENTARIO_SIMPLE ) {
+                    //NADA PORQUE ES UN COMENTARIO AGREGADO
+                }
+                else{ //ERROR SINTACTICO, SE AGREGA A LA LISTA DE ERRORES
+                    this.esError = true;
+                    let error =  new ErrorSintactico(this.tokenActual, tipo_esperado);
+                    console.log('ERROR SINTACTICO');
+                    console.log("valor actual " + this.tokenActual.tipoToken);
+                    console.log("\tError se esperaba " + tipo_esperado);
+                    this.listaErrores.push(error);
+                    //COMO EL ERROR SE CORRERIA ENTRA EL MODO PANICO, COMERSE TODO HASTA ENCONTRAR PUNTO Y COMA
+                }
+            }
+            else{console.log("val :" + this.tokenActual.tipoToken + " esperado: " + tipo_esperado);}
+        }
+        
         this.controlToken++;
         if (this.controlToken < this.listaTokens.length) {
             this.tokenActual = this.listaTokens[this.controlToken];
@@ -266,6 +311,10 @@ export class Sintactico {
         {
             return true;
         }
+        else if (this.tokenActual.tipoToken === TipoToken.DOUBLE)
+        {
+            return true;
+        }
         else
         {
             return false;
@@ -292,6 +341,10 @@ export class Sintactico {
         else if (this.tokenActual.tipoToken === TipoToken.CHAR)
         {
             this.emparejar(TipoToken.CHAR);
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.DOUBLE)
+        {
+            this.emparejar(TipoToken.DOUBLE);
         }
     }
     private esMetodo():boolean{
@@ -779,6 +832,10 @@ export class Sintactico {
                 this.emparejar(this.tokenActual.tipoToken);
                 this.ValorDato();
             }
+            else if(this.ReconocerLogicos()){
+                this.OperadoresLogicos();
+                this.ValorDato();
+            }
             else
             {
             
@@ -852,10 +909,10 @@ export class Sintactico {
         else if(this.esFor == false)
         {
             if(this.tokenActual.tipoToken ===  TipoToken.DOBLE_OR){
-                this.Traduccion += "or";
+                this.Traduccion += " or ";
             }
             else if(this.tokenActual.tipoToken === TipoToken.DOBLE_AND){
-                this.Traduccion += "and";
+                this.Traduccion += " and ";
             }
         }
         if (this.tokenActual.tipoToken === TipoToken.DOBLE_IGUAL)  // == 
@@ -889,6 +946,45 @@ export class Sintactico {
         else if (this.tokenActual.tipoToken === TipoToken.DOBLE_OR)  // <
         {
             this.emparejar(TipoToken.DOBLE_OR);
+        }
+    }
+    private ReconocerLogicos():boolean  // == , >= , <= , != , > , <
+    {
+       
+        if (this.tokenActual.tipoToken === TipoToken.DOBLE_IGUAL)  // == 
+        {
+            return true;
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.MAYOR_IGUAL)  // >=
+        {
+            return true;
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.MENOR_IGUAL)  // <=
+        {
+            return true;
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.DIFERENTEA)  // !=
+        {
+            return true;
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.MAYOR)  // >
+        {
+            return true;
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.MENOR)  // <
+        {
+            return true;
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.DOBLE_AND)  // <
+        {
+            return true;
+        }
+        else if (this.tokenActual.tipoToken === TipoToken.DOBLE_OR)  // <
+        {
+            return true;
+        }
+        else{
+            return false;
         }
     }
     /*------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------
@@ -1217,7 +1313,7 @@ export class Sintactico {
         if(this.tokenActual.tipoToken === TipoToken.WRITELINE){
             this.emparejar(TipoToken.WRITELINE);
         }
-        else if(this.tokenActual.tipoToken === TipoToken.WRITE){
+        else{
             this.emparejar(TipoToken.WRITE);
         }
         this.Traduccion += this.tabulacion + "print";
@@ -1271,7 +1367,7 @@ export class Sintactico {
         if(this.Reconocer_TipoDato()){
             this.TipoDato();
         }
-        else{this.emparejar(TipoToken.STRING);} //TIPO DE DATO REPRESENTATIVO //ERROR SINTACTICO
+        else{this.emparejar(TipoToken.VALOR);} //TIPO DE DATO REPRESENTATIVO //ERROR SINTACTICO
         
         this.Traduccion += this.tokenActual.lexemaToken; //AGREGANDO PARAMETRO
         this.emparejar(TipoToken.IDENTIFICADOR);
