@@ -1418,7 +1418,7 @@ export class Sintactico {
         this.emparejar(TipoToken.PARENTESIS_APERTURA);
         this.Parametros();
         this.emparejar(TipoToken.PARENTESIS_CIERRE);
-        this.Traduccion += '):';
+        this.Traduccion += '):\n';
         this.emparejar(TipoToken.LLAVE_APERTURA);
         this.AumentarTab();
         this.LISTA_TODAS_SENTENCIAS();

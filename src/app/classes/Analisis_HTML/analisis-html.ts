@@ -135,11 +135,11 @@ export class AnalisisHtml{
         if(this.auxiliarLexema.toUpperCase() == "<BR>"){this.agregarEtiqueta(Etiqueta.BR, false);}
         else if(this.auxiliarLexema.toUpperCase() == "<HTML>"){this.agregarEtiqueta(Etiqueta.HTML, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<HEAD>"){this.agregarEtiqueta(Etiqueta.HEAD, true);}
-        else if(this.auxiliarLexema.toUpperCase().includes("<BODY>")){this.agregarEtiqueta(Etiqueta.BODY, true);}
+        else if(this.auxiliarLexema.toUpperCase().includes("<BODY")){this.agregarEtiqueta(Etiqueta.BODY, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<TITLE>"){this.agregarEtiqueta(Etiqueta.TITLE, true);}
-        else if(this.auxiliarLexema.toUpperCase().includes("<DIV>")){this.agregarEtiqueta(Etiqueta.DIV, true);}
+        else if(this.auxiliarLexema.toUpperCase().includes("<DIV")){this.agregarEtiqueta(Etiqueta.DIV, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<P>"){this.agregarEtiqueta(Etiqueta.P, true);}
-        else if(this.auxiliarLexema.toUpperCase().includes("<H>")){this.agregarEtiqueta(Etiqueta.H1, true);}
+        else if(this.auxiliarLexema.toUpperCase().includes("<H")){this.agregarEtiqueta(Etiqueta.H1, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<BUTTON>"){this.agregarEtiqueta(Etiqueta.BUTTON, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<LABEL>"){this.agregarEtiqueta(Etiqueta.LABEL, true);}
         else if(this.auxiliarLexema.toUpperCase() == "<INPUT>"){this.agregarEtiqueta(Etiqueta.INPUT, true);}
@@ -150,7 +150,7 @@ export class AnalisisHtml{
         else if(this.auxiliarLexema.toUpperCase() == "</TITLE>"){this.agregarEtiqueta(Etiqueta.TITLE_CIERRE, true);}
         else if(this.auxiliarLexema.toUpperCase() == "</DIV>"){this.agregarEtiqueta(Etiqueta.DIV_CIERRE, true);}
         else if(this.auxiliarLexema.toUpperCase() == "</P>"){this.agregarEtiqueta(Etiqueta.P_CIERRE, true);}
-        else if(this.auxiliarLexema.toUpperCase() == "</H1>"){this.agregarEtiqueta(Etiqueta.H1_CIERRE, true);}
+        else if(this.auxiliarLexema.toUpperCase().includes("</H")){this.agregarEtiqueta(Etiqueta.H1_CIERRE, true);}
         else if(this.auxiliarLexema.toUpperCase() == "</BUTTON>"){this.agregarEtiqueta(Etiqueta.BUTTON_CIERRE, true);}
         else if(this.auxiliarLexema.toUpperCase() == "</LABEL>"){this.agregarEtiqueta(Etiqueta.LABEL_CIERRE, true);}
         else if(this.auxiliarLexema.toUpperCase() == "</INPUT>"){this.agregarEtiqueta(Etiqueta.INPUT_CIERRE, true);}
@@ -177,7 +177,9 @@ export class AnalisisHtml{
                     this._json += this.tabulacion + '"' + etiqueta.etiqueta + '":{\n'  
                     if(etiqueta.etiqueta == Etiqueta.BODY || etiqueta.etiqueta == Etiqueta.DIV){
                           if(etiqueta.valor.toUpperCase().includes('STYLE')){
-
+                            let inicio:number = etiqueta.valor.indexOf('"');
+                            let final:number = etiqueta.valor.lastIndexOf('"');
+                            this._json += this.tabulacion + '\t"STYLE":' + etiqueta.valor.substring(inicio,final)+ '",\n';
                           }
                     }
                     this._html += this.tabulacion + etiqueta.valor + '\n';

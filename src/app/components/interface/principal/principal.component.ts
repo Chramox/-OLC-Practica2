@@ -97,6 +97,10 @@ export class PrincipalComponent implements OnInit {
     let informacion:string = localStorage.getItem("json");
     download('salidaJSON.json', informacion);
   }
+  generarPY(){
+    let informacion:string = (<HTMLInputElement>document.getElementById('textearea_python')).value;
+    download('traduccion.py', informacion);
+  }
 }
 function onFileSelect(event) {
   this.selectedFile = event.target.files[0];
