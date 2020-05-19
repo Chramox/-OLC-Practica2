@@ -26,10 +26,10 @@ export class PrincipalComponent implements OnInit {
 
   }
   //TODO: HACER EL DECREMENTO PARA EL FOR
-  //VARIABLESa dsfasfdasfdasdfdfsadsffds
+  //VARIABLESa dsfasfdasfdasdfdfsadsffdscxsfdfssfdsfd
   // private _listaTokens: Token[] = [];
   // public get listaTokens(): Token[] {
-  //   return this._listaTokens;
+  //   return this._listaTokens;dafsd
   // }
   // public set listaTokens(value: Token[]) {
   //   this._listaTokens = value;
