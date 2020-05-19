@@ -207,7 +207,7 @@ export class Sintactico {
             console.log("SENTENCIA IMPRIMIR");
             this.Sentencia_Imprimir();
         }//YA REVISADO
-        else if(this.tokenActual.tipoToken === TipoToken.BREAK && this.contadorCase==0){
+        else if(this.tokenActual.tipoToken === TipoToken.BREAK){
             if(this.contadorBucles>0){
                 this.Traduccion += this.tabulacion + "break\n";
                 this.emparejar(TipoToken.BREAK);
@@ -217,7 +217,10 @@ export class Sintactico {
                 let error =  new ErrorSintactico(this.tokenActual, TipoToken.IDENTIFICADOR);
                 console.log('ERROR SINTACTICO, NO PUEDE PONER '+this.tokenActual.lexemaToken+' ALLI');
                 this.listaErrores.push(error);
+                this.emparejar(TipoToken.BREAK);
+                this.emparejar(TipoToken.PUNTO_COMA);
             }
+            this.LISTA_TODAS_SENTENCIAS();
         }
         else if(this.tokenActual.tipoToken === TipoToken.DO){
             this.Sentencia_DoWhile();

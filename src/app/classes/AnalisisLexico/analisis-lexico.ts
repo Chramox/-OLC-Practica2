@@ -823,6 +823,11 @@ export class AnalisisLexico {
             //idToken = 27;
             //agregarToken(TipoToken.COMENTARIO_MULTILINEA_CIERRA);
         }
+        else if (auxiliarLexema == "!")
+        {
+            this.idToken = 27;
+            this.agregarToken(TipoToken.ADMIRACION_CIERRE);
+        }
         else 
         {
             this.estado = 4;
